@@ -6,10 +6,12 @@
   </div>
 </template>
 <style lang="scss">
-@import url("./styles/reset.css");
+// @import url("./styles/reset.css");
 body {
   width: 100vw;
   height: 100vh;
+  padding: 0;
+  margin: 0;
 }
 #app {
   width: 100%;
