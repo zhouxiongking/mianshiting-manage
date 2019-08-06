@@ -14,17 +14,13 @@ export default new Router({
           path: "/interviewQuestionManagement",
           name: "InterviewQuestionManagement",
           component: () =>
-            import(
-              "@/views/InterviewQuestionManagement/InterviewQuestionManagement.vue"
-            )
+            import("@/views/InterviewQuestionManagement/InterviewQuestionManagement.vue")
         },
         {
           path: "/interQuestion",
           name: "InterQuestion",
           component: () =>
-            import(
-              "@/views/InterviewQuestionManagement/InterQuestion.vue"
-            )
+            import("@/views/InterviewQuestionManagement/InterQuestion.vue")
         }
       ]
     },

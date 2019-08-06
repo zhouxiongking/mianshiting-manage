@@ -10,13 +10,16 @@
             <el-menu
               default-active="interviewQuestions"
               class="el-menu-vertical-demo"
-              router>
+              router
+            >
               <el-submenu index="interviewQuestions">
                 <template slot="title">
                   <i class="el-icon-s-management"></i>
                   <span class="IQ">面试题</span>
                 </template>
-                <el-menu-item index="interviewQuestionManagement" class="IQM">面试题管理</el-menu-item>
+                <el-menu-item index="interviewQuestionManagement" class="IQM"
+                  >面试题管理</el-menu-item
+                >
               </el-submenu>
             </el-menu>
           </div>
@@ -36,7 +39,7 @@ export default {
   components: {
     Header
   }
-}
+};
 </script>
 <style lang="scss" scoped>
 #full {
@@ -50,12 +53,13 @@ export default {
     width: 100%;
     height: 100%;
   }
-  .aside,.main{
-    height:  100%;
+  .aside,
+  .main {
+    height: 100%;
     overflow: auto;
   }
   .el-menu-vertical-demo {
-    height:  100%;
+    height: 100%;
   }
   .IQ {
     font-size: 20px;
@@ -65,4 +69,3 @@ export default {
   }
 }
 </style>
-

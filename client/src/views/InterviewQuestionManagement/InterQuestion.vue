@@ -7,9 +7,8 @@
       <el-form-item label="试题简介：">
         <el-input v-model="form.brief"></el-input>
       </el-form-item>
-      <el-form-item label="试题内容：">
-      </el-form-item>
-    </el-form >
+      <el-form-item label="试题内容："> </el-form-item>
+    </el-form>
     <h2>新增面试题</h2>
     <el-radio-group v-model="questionType">
       <el-radio label="judge">判断题</el-radio>
@@ -18,7 +17,10 @@
       <el-radio label="QA">问答题</el-radio>
       <el-radio label="code">编程题</el-radio>
     </el-radio-group>
-    <div class="radio" v-if="questionType == 'radio' || questionType == 'judge'">
+    <div
+      class="radio"
+      v-if="questionType == 'radio' || questionType == 'judge'"
+    >
       <RadioQuestion />
     </div>
     <div class="checkbox" v-if="questionType == 'checkbox'">
@@ -30,29 +32,36 @@
   </div>
 </template>
 <script>
-import CheckboxQuestion from "@/components/CheckboxQuestion.vue"
-import QAandCodeQuestion from "@/components/QAandCodeQuestion.vue"
-import RadioQuestion from "@/components/RadioQuestion.vue"
+import CheckboxQuestion from "@/components/CheckboxQuestion.vue";
+import QAandCodeQuestion from "@/components/QAandCodeQuestion.vue";
+import RadioQuestion from "@/components/RadioQuestion.vue";
 export default {
   components: {
     QAandCodeQuestion,
     RadioQuestion,
     CheckboxQuestion
   },
+  mounted() {
+    if(this.$route.params.id){
+      this.$api.getExamsDetail({id: this.$route.params.id}).then(res => {
+        
+      }).catch(err => {
+        this.$router.push({ path: "/interviewQuestionManagement"});
+      })
+    }else {
+      this.$router.push({ path: "/interviewQuestionManagement"});
+    }
+  },
   data() {
     return {
       form: {
-        name: '123',
-        brief: '',
-        radio: ''
+        name: "123",
+        brief: "",
+        radio: ""
       },
-      questionType: ''
-    }
-  },
-}
+      questionType: ""
+    };
+  }
+};
 </script>
-<style lang="scss" scoped>
-
-</style>
-
-
+<style lang="scss" scoped></style>
