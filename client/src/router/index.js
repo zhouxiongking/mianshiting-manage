@@ -17,7 +17,7 @@ export default new Router({
             import("@/views/InterviewQuestionManagement/InterviewQuestionManagement.vue")
         },
         {
-          path: "/interQuestion",
+          path: "/interQuestion/:id",
           name: "InterQuestion",
           component: () =>
             import("@/views/InterviewQuestionManagement/InterQuestion.vue")

@@ -4,15 +4,18 @@
       >新增</el-button
     >
     <el-table :data="tableData" style="width: 100%" border :height="600">
-      <el-table-column prop="creatTime" label="创建时间"> </el-table-column>
-      <el-table-column prop="classify" label="类别"> </el-table-column>
+      <el-table-column prop="create_date" label="创建时间" :formatter="formatTime"> </el-table-column>
+      <el-table-column prop="title" label="标题"> </el-table-column>
+      <el-table-column prop="describe" label="描述"> </el-table-column>
+      <el-table-column prop="author" label="作者"> </el-table-column>
       <el-table-column prop="count" label="题目总数"> </el-table-column>
+      <el-table-column prop="study_times" label="学习次数"> </el-table-column>
       <el-table-column fixed="right" label="操作">
-        <template>
-          <el-button type="text">
+        <template slot-scope="scope">
+          <el-button type="text" @click="editExams(scope.row.id)">
             编辑
           </el-button>
-          <el-button type="text">
+          <el-button type="text" @click="delExams(scope.row.id)">
             删除
           </el-button>
         </template>
@@ -21,17 +24,20 @@
     <el-pagination
       @size-change="handleSizeChange"
       @current-change="handleCurrentChange"
-      :current-page="currentPage4"
-      :page-sizes="[100, 200, 300, 400]"
-      :page-size="100"
+      @next-click="handleCurrentChange"
+      @prev-click="handleCurrentChange"
+      :current-page="pageInfo.pageIndex"
+      :page-sizes="[10, 20, 30, 40]"
+      :page-size="pageInfo.pageSize"
       layout="total, sizes, prev, pager, next, jumper"
-      :total="400"
+      :total="total"
     >
     </el-pagination>
     <el-dialog
       title="请先创建面试题种类"
       :visible.sync="createExams"
-      width="30%">
+      width="30%"
+    >
       <span>
         <el-form ref="form" label-width="100px">
           <el-form-item label="标题：">
@@ -55,17 +61,19 @@ export default {
     return {
       createExams: false,
       newExamsInfo: {
-        title: '',
-        describe:''
+        title: "",
+        describe: ""
       },
-      tableData: [
-        {
-          creatTime: "2019-08-01 23:02:52",
-          classify: "啊啊啊啊啊啊",
-          count: "20"
-        }
-      ]
+      total: 0,
+      pageInfo: {
+        pageIndex: 1,
+        pageSize: 10,
+      },
+      tableData: []
     };
+  },
+  mounted() {
+    this.getExamsList();
   },
   methods: {
     addIQ() {
@@ -73,11 +81,57 @@ export default {
       // this.$router.push({ path: "/interQuestion" });
     },
     creatExams() {
-      if(this.newExamsInfo.title.length > 0 && this.newExamsInfo.describe.length > 0){
-        this.$api.createExams(this.newExamsInfo).then(res => {
-          this.$router.push({ name: "InterQuestion",params:{id:res.data.uid}});
-        }).catch(err => {})
+      if (
+        this.newExamsInfo.title.length > 0 &&
+        this.newExamsInfo.describe.length > 0
+      ) {
+        this.$api
+          .createExams(this.newExamsInfo)
+          .then(res => {
+            this.createExams = false;
+            this.$router.push({
+              path: "/interQuestion/" + res.data.uid,
+            });
+          })
+          .catch(err => {
+            console.log(err);
+          });
       }
+    },
+    getExamsList() {
+      this.$api.getExamsList(this.pageInfo).then(res => {
+        this.total = res.total;
+        this.tableData = res.data;
+      }).catch(err => {
+            console.log(err);
+          });
+    },
+    handleSizeChange(size) {
+      this.pageInfo.pageSize = size;
+      this.pageInfo.pageIndex = 1;
+      this.getExamsList();
+    },
+    handleCurrentChange(index) {
+      this.pageInfo.pageIndex = index;
+      this.getExamsList();
+    },
+    editExams(id) {
+      this.$router.push({
+        path: "/interQuestion/" + id,
+      });
+    },
+    delExams(id) {
+
+    },
+    formatTime(row, column, cellValue, index) {
+      let date = new Date(parseInt(cellValue));
+      let year = date.getFullYear();
+      let month = (date.getMonth() + 1) > 10 ? date.getMonth() + 1 : '0' + (date.getMonth() + 1);
+      let day = date.getDate() > 10 ? date.getDate() : '0' + date.getDate();
+      let hours = date.getHours() > 10 ? date.getHours() : '0' + date.getHours();
+      let minutes = date.getMinutes() > 10 ? date.getMinutes() : '0' + date.getMinutes();
+      let seconds = date.getSeconds() > 10 ? date.getSeconds() : '0' + date.getSeconds();
+      return year + '-' + month + '-' + day + ' ' + hours + ':' + minutes + ':' + seconds;
     }
   }
 };

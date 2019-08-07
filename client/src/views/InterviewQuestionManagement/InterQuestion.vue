@@ -1,11 +1,11 @@
 <template>
   <div>
-    <el-form ref="form" label-width="100px">
+    <el-form ref="examsInfo" label-width="100px">
       <el-form-item label="公司：">
-        <el-input v-model="form.name"></el-input>
+        <el-input v-model="examsInfo.title"></el-input>
       </el-form-item>
       <el-form-item label="试题简介：">
-        <el-input v-model="form.brief"></el-input>
+        <el-input v-model="examsInfo.describe"></el-input>
       </el-form-item>
       <el-form-item label="试题内容："> </el-form-item>
     </el-form>
@@ -21,13 +21,13 @@
       class="radio"
       v-if="questionType == 'radio' || questionType == 'judge'"
     >
-      <RadioQuestion />
+      <RadioQuestion :examDetail="examsInfo" @reset="reset"/>
     </div>
     <div class="checkbox" v-if="questionType == 'checkbox'">
-      <CheckboxQuestion />
+      <CheckboxQuestion :examDetail="examsInfo" @reset="reset"/>
     </div>
     <div class="QA" v-if="questionType == 'QA' || questionType == 'code'">
-      <QAandCodeQuestion />
+      <QAandCodeQuestion :examDetail="examsInfo" @reset="reset"/>
     </div>
   </div>
 </template>
@@ -42,25 +42,33 @@ export default {
     CheckboxQuestion
   },
   mounted() {
-    if(this.$route.params.id){
-      this.$api.getExamsDetail({id: this.$route.params.id}).then(res => {
-        
-      }).catch(err => {
-        this.$router.push({ path: "/interviewQuestionManagement"});
-      })
-    }else {
-      this.$router.push({ path: "/interviewQuestionManagement"});
+    if (this.$route.params.id) {
+      this.$api
+        .getExamsDetail({ id: this.$route.params.id })
+        .then(res => {
+          this.examsInfo = res.data;
+        })
+        .catch(err => {
+          console.log(err);
+          this.$router.push({ path: "/interviewQuestionManagement" });
+        });
+    } else {
+      this.$router.push({ path: "/interviewQuestionManagement" });
     }
   },
   data() {
     return {
-      form: {
-        name: "123",
-        brief: "",
-        radio: ""
+      examsInfo: {
+        title: "",
+        describe: "",
       },
       questionType: ""
     };
+  },
+  methods: {
+    reset() {
+      this.questionType = ''
+    }
   }
 };
 </script>

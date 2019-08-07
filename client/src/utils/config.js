@@ -1,6 +1,7 @@
+const baseUrl = process.env.NODE_ENV === "production" ? "/" : "/api";
 export default {
   // 基础url前缀
-  baseURL: "http://localhost:3000/",
+  baseURL: baseUrl,
   // 请求头信息
   headers: {
     "Content-Type": "application/json;charset=UTF-8"

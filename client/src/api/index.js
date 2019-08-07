@@ -1,5 +1,4 @@
 import apiList from "./interface";
-console.log(apiList);
 const install = Vue => {
   if (install.installed) return;
   install.installed = true;

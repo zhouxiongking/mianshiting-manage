@@ -1,6 +1,10 @@
 <template>
   <div>
     <el-form ref="form" label-width="100px">
+      <br>
+      <el-form-item label="试题类题：">
+        <el-input placeholder="请输入内容" v-model="option"> </el-input>
+      </el-form-item>
       <el-form-item label="问答题：">
         <Editor
           class="QAandCodeQuestion"

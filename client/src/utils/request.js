@@ -1,7 +1,6 @@
 import axios from "axios";
 import config from "./config.js";
 import qs from "qs";
-import router from "../router";
 import { Message } from "element-ui";
 
 export default function $axios(options) {
@@ -9,8 +8,6 @@ export default function $axios(options) {
     const instance = axios.create({
       baseURL: config.baseURL,
       headers: {},
-      // eslint-disable-next-line
-      transformResponse: [function(data) {}]
     });
 
     // request 拦截器
@@ -33,13 +30,7 @@ export default function $axios(options) {
     // response 拦截器
     instance.interceptors.response.use(
       response => {
-        let data;
-        // IE9时response.data是undefined，因此需要使用response.request.responseText(Stringify后的字符串)
-        if (response.data == undefined) {
-          data = response.request.responseText;
-        } else {
-          data = response.data;
-        }
+        let data = response.data;
         // 根据返回的code值来做不同的处理（和后端约定）
         // switch (data.code) {
         //   case "0":
@@ -53,6 +44,9 @@ export default function $axios(options) {
         // err.response = response
 
         // throw err
+        if(data.code != 0){
+          Promise.reject(data)
+        }
         return data;
       },
       err => {
