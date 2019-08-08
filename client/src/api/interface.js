@@ -16,6 +16,14 @@ const getExamsList = params => {
   });
 };
 
+const getSubjectList = params => {
+  return axios({
+    url: "/getSubjectList",
+    method: "get",
+    params
+  });
+};
+
 const createExams = data => {
   return axios({
     url: "/createExams",
@@ -40,6 +48,14 @@ const delSubject = data => {
   });
 };
 
+const delExam = data => {
+  return axios({
+    url: "/delExam",
+    method: "post",
+    data
+  });
+};
+
 const updateSubject = data => {
   return axios({
     url: "/updateSubject",
@@ -53,5 +69,7 @@ export default {
   getExamsList,
   addSubject,
   delSubject,
-  updateSubject
+  delExam,
+  updateSubject,
+  getSubjectList
 };

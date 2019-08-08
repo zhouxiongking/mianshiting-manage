@@ -53,8 +53,12 @@
         ></Editor>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="save('checkboxQuestion')">保存</el-button>
-        <el-button @click="close('checkboxQuestion')">取消</el-button>
+        <div class="addBtn">
+          <el-button type="primary" @click="save('checkboxQuestion')" v-if="!isEdit">保存</el-button>
+          <el-button type="primary" @click="edit('checkboxQuestion')" v-else>提交</el-button>
+          <el-button @click="close('checkboxQuestion')"  v-if="!isEdit">取消</el-button>
+          <el-button @click="del('checkboxQuestion')"  v-else>删除</el-button>
+        </div>
       </el-form-item>
     </el-form>
   </div>
@@ -79,6 +83,10 @@ export default {
       type: Object,
       default: () => {}
     },
+    isEdit: {
+      type: Boolean,
+      default: false
+    }
   },
   data() {
     return {
@@ -96,7 +104,6 @@ export default {
       checkboxQuestion: {
         type:'',
         examId: '',
-        index: 0,
         subject_describe: "",
         subject_title: "",
         subject_type: 1,
@@ -126,10 +133,12 @@ export default {
   },
   mounted() {
     tinymce.init({});
-    this.checkboxQuestion.examId = this.examDetail.id;
-    this.checkboxQuestion.index = this.examDetail.count ++;
-    if (this.questionDetail) {
+    if(!this.isEdit) this.question.examId = this.examDetail.id;
+    else {
       this.checkboxQuestion = this.questionDetail;
+      this.checkboxQuestion.subject_options_key = this.checkboxQuestion.subject_options_key.split('-');
+      this.checkboxQuestion.subject_options_value = this.checkboxQuestion.subject_options_value.split('-');
+      this.checkboxQuestion.reference_answer = this.checkboxQuestion.reference_answer.split(',');
     }
   },
   methods: {
@@ -160,9 +169,32 @@ export default {
         }
       });
     },
+    edit(formName) {
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+          this.$api.updateSubject(this.checkboxQuestion).then(res => {
+            this.$message({
+              message: res.msg,
+              type: 'success'
+            });
+          })
+        } else {
+          return false;
+        }
+      });
+    },
     close(formName) {
       this.$refs[formName].resetFields();
       this.$emit('reset');
+    },
+    del() {
+      this.$api.delSubject({id:this.checkboxQuestion.id,examId:this.checkboxQuestion.examId}).then(res => {
+        this.$message({
+          message: res.msg,
+          type: 'success'
+        });
+        this.$emit('updateList')
+      })
     }
   }
 };

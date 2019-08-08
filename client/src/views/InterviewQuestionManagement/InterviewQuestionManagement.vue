@@ -12,10 +12,10 @@
       <el-table-column prop="study_times" label="学习次数"> </el-table-column>
       <el-table-column fixed="right" label="操作">
         <template slot-scope="scope">
-          <el-button type="text" @click="editExams(scope.row.id)">
+          <el-button type="text" @click="editExam(scope.row.id)">
             编辑
           </el-button>
-          <el-button type="text" @click="delExams(scope.row.id)">
+          <el-button type="text" @click="delExam(scope.row.id)">
             删除
           </el-button>
         </template>
@@ -115,13 +115,19 @@ export default {
       this.pageInfo.pageIndex = index;
       this.getExamsList();
     },
-    editExams(id) {
+    editExam(id) {
       this.$router.push({
         path: "/interQuestion/" + id,
       });
     },
-    delExams(id) {
-
+    delExam(id) {
+      this.$api.delExam({id}).then(res => {
+        this.$message({
+          message: res.msg,
+          type: 'success'
+        });
+        this.getExamsList();
+      })
     },
     formatTime(row, column, cellValue, index) {
       let date = new Date(parseInt(cellValue));

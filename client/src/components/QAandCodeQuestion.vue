@@ -1,30 +1,45 @@
 <template>
   <div>
-    <el-form ref="form" label-width="100px">
+    <el-form :model="question" ref="question" label-width="100px" :rules="rules">
       <br>
-      <el-form-item label="试题类题：">
-        <el-input placeholder="请输入内容" v-model="option"> </el-input>
+      <el-form-item label="试题类题：" prop="type">
+        <el-input placeholder="请输入内容" v-model="question.type"> </el-input>
       </el-form-item>
-      <el-form-item label="问答题：">
+      <el-form-item label="题目：" prop="subject_title">
         <Editor
           class="QAandCodeQuestion"
-          v-model="question.title"
+          v-model="question.subject_title"
           :init="editorInit"
         ></Editor>
       </el-form-item>
-      <el-form-item label="正确答案：">
+      <el-form-item label="描述：" prop="subject_describe">
         <Editor
           class="QAandCodeQuestion"
-          v-model="question.rightKey"
+          v-model="question.subject_describe"
           :init="editorInit"
         ></Editor>
       </el-form-item>
-      <el-form-item label="解答过程：">
+      <el-form-item label="正确答案：" prop="reference_answer">
         <Editor
           class="QAandCodeQuestion"
-          v-model="question.solution"
+          v-model="question.reference_answer"
           :init="editorInit"
         ></Editor>
+      </el-form-item>
+      <el-form-item label="解答过程：" prop="answer_detail">
+        <Editor
+          class="QAandCodeQuestion"
+          v-model="question.answer_detail"
+          :init="editorInit"
+        ></Editor>
+      </el-form-item>
+      <el-form-item>
+        <div class="addBtn">
+          <el-button type="primary" @click="save('question')" v-if="!isEdit">保存</el-button>
+          <el-button type="primary" @click="edit('question')" v-else>提交</el-button>
+          <el-button @click="close('question')"  v-if="!isEdit">取消</el-button>
+          <el-button @click="del('question')"  v-else>删除</el-button>
+        </div>
       </el-form-item>
     </el-form>
   </div>
@@ -40,26 +55,107 @@ export default {
   components: {
     Editor
   },
+  props: {
+    questionDetail: {
+      type: Object,
+      default: () => {}
+    },
+    examDetail: {
+      type: Object,
+      default: () => {}
+    },
+    isEdit: {
+      type: Boolean,
+      default: false
+    }
+  },
   data() {
     return {
       editorInit: {
-        selector: ".RadioQuestion",
+        selector: ".QAandCodeQuestion",
         language_url: lang,
         language: "zh_CN",
         skin_url: "/tinymce/skins/lightgray",
         height: 300
       },
       question: {
-        title: "",
-        rightKey: 1,
-        solution: ""
+        type:'',
+        examId: '',
+        subject_describe: "",
+        subject_title: "",
+        subject_type: 2,
+        subject_options_key: [],
+        subject_options_value: [],
+        reference_answer: '',
+        answer_detail: ""
+      },
+      rules: {
+        type: [
+          { required: true, message: '请输入题目类型', trigger: 'blur' },
+        ],
+        subject_describe: [
+          { required: true, message: '请输入题目描述', trigger: 'blur' }
+        ],
+        subject_title: [
+          { required: true, message: '请输入题目标题', trigger: 'blur' }
+        ],
+        reference_answer: [
+          { required: true, message: '请选择正确答案', trigger: 'change' }
+        ],
+        answer_detail: [
+          { required: true, message: '请选择答案解析', trigger: 'blur' }
+        ],
       }
     };
   },
   mounted() {
     tinymce.init({});
+    if(!this.isEdit) this.question.examId = this.examDetail.id;
+    else {
+      this.question = this.questionDetail;
+    }
   },
-  methods: {}
+  methods: {
+    save(formName) {
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+          this.$api.addSubject(this.question).then(res => {
+            this.$refs[formName].resetFields();
+            this.$emit('reset');
+          })
+        } else {
+          return false;
+        }
+      });
+    },
+    edit(formName) {
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+          this.$api.updateSubject(this.question).then(res => {
+            this.$message({
+              message: res.msg,
+              type: 'success'
+            });
+          })
+        } else {
+          return false;
+        }
+      });
+    },
+    close(formName) {
+      this.$refs[formName].resetFields();
+      this.$emit('reset');
+    },
+    del() {
+      this.$api.delSubject({id:this.question.id,examId:this.question.examId}).then(res => {
+        this.$message({
+          message: res.msg,
+          type: 'success'
+        });
+        this.$emit('updateList')
+      })
+    }
+  }
 };
 </script>
 <style lang="scss" scoped></style>

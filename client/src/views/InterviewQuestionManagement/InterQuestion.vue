@@ -7,7 +7,15 @@
       <el-form-item label="试题简介：">
         <el-input v-model="examsInfo.describe"></el-input>
       </el-form-item>
-      <el-form-item label="试题内容："> </el-form-item>
+      <el-form-item label="试题内容：">
+        <ol>
+          <li v-for="(item,index) in subjectList" :key="index" class="subjectList">
+            <RadioQuestion :questionDetail="item" :isEdit="true" v-if="item.subject_type == 0" @updateList="updateSubjectList"/>
+            <CheckboxQuestion :questionDetail="item" :isEdit="true" v-if="item.subject_type == 1" @updateList="updateSubjectList"/>
+            <QAandCodeQuestion :questionDetail="item" :isEdit="true" v-if="item.subject_type == 2" @updateList="updateSubjectList"/>
+          </li>
+        </ol>
+      </el-form-item>
     </el-form>
     <h2>新增面试题</h2>
     <el-radio-group v-model="questionType">
@@ -43,15 +51,8 @@ export default {
   },
   mounted() {
     if (this.$route.params.id) {
-      this.$api
-        .getExamsDetail({ id: this.$route.params.id })
-        .then(res => {
-          this.examsInfo = res.data;
-        })
-        .catch(err => {
-          console.log(err);
-          this.$router.push({ path: "/interviewQuestionManagement" });
-        });
+      this.getExamsDetail();
+      this.getSubjectList();
     } else {
       this.$router.push({ path: "/interviewQuestionManagement" });
     }
@@ -62,14 +63,36 @@ export default {
         title: "",
         describe: "",
       },
-      questionType: ""
+      questionType: "",
+      subjectList: []
     };
   },
   methods: {
     reset() {
       this.questionType = ''
+    },
+    updateSubjectList() {
+      this.getSubjectList();
+    },
+    getExamsDetail() {
+      this.$api
+        .getExamsDetail({ id: this.$route.params.id })
+        .then(res => {
+          this.examsInfo = res.data;
+        })
+        .catch(err => {
+          console.log(err);
+          this.$router.push({ path: "/interviewQuestionManagement" });
+        });
+    },
+    getSubjectList() {
+      this.$api.getSubjectList({ examId: this.$route.params.id })
+      .then(res => {
+        this.subjectList = res.data;
+      })
     }
   }
 };
 </script>
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+</style>

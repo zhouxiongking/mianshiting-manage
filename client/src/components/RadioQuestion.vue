@@ -53,8 +53,12 @@
         ></Editor>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="save('radioQuestion')">保存</el-button>
-        <el-button @click="close('radioQuestion')">取消</el-button>
+        <div class="addBtn">
+          <el-button type="primary" @click="save('radioQuestion')" v-if="!isEdit">保存</el-button>
+          <el-button type="primary" @click="edit('radioQuestion')" v-else>提交</el-button>
+          <el-button @click="close('radioQuestion')"  v-if="!isEdit">取消</el-button>
+          <el-button @click="del('radioQuestion')"  v-else>删除</el-button>
+        </div>
       </el-form-item>
     </el-form>
   </div>
@@ -79,6 +83,10 @@ export default {
       type: Object,
       default: () => {}
     },
+    isEdit: {
+      type: Boolean,
+      default: false
+    }
   },
   data() {
     return {
@@ -96,7 +104,6 @@ export default {
       radioQuestion: {
         type:'',
         examId: '',
-        index: 0,
         subject_describe: "",
         subject_title: "",
         subject_type: 0,
@@ -126,10 +133,11 @@ export default {
   },
   mounted() {
     tinymce.init({});
-    this.radioQuestion.examId = this.examDetail.id;
-    this.radioQuestion.index = this.examDetail.count ++;
-    if (this.questionDetail) {
+    if(!this.isEdit) this.question.examId = this.examDetail.id;
+    else {
       this.radioQuestion = this.questionDetail;
+      this.radioQuestion.subject_options_key = this.radioQuestion.subject_options_key.split('-');
+      this.radioQuestion.subject_options_value = this.radioQuestion.subject_options_value.split('-');
     }
   },
   methods: {
@@ -160,9 +168,32 @@ export default {
         }
       });
     },
+    edit(formName) {
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+          this.$api.updateSubject(this.radioQuestion).then(res => {
+            this.$message({
+              message: res.msg,
+              type: 'success'
+            });
+          })
+        } else {
+          return false;
+        }
+      });
+    },
     close(formName) {
       this.$refs[formName].resetFields();
       this.$emit('reset');
+    },
+    del() {
+      this.$api.delSubject({id:this.radioQuestion.id,examId:this.radioQuestion.examId}).then(res => {
+        this.$message({
+          message: res.msg,
+          type: 'success'
+        });
+        this.$emit('updateList')
+      })
     }
   }
 };

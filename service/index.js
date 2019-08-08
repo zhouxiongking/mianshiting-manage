@@ -56,7 +56,7 @@ app.get("/getExamsList", (req, res) => {
   let index = req.query.pageIndex;
   let size = req.query.pageSize;
   let start = (index - 1) * size;
-  let sql = 'SELECT COUNT(*) FROM exams; SELECT * FROM exams limit ' + start + ',' + size;
+  let sql = 'SELECT COUNT(*) FROM exams where status=1; SELECT * FROM exams where status=1 limit ' + start + ',' + size;
   db.query(sql, [], function(result, fields, err) {
     if(err){
       console.log(err)
@@ -77,10 +77,30 @@ app.get("/getExamsList", (req, res) => {
   });
 });
 
+// 获取面试题列表
+app.get("/getSubjectList", (req, res) => {
+  let sql = `SELECT * FROM subject where examId='${req.query.examId}'`;
+  db.query(sql, [], function(result, fields, err) {
+    if(err){
+      console.log(err)
+      res.status(200).json({
+        code: 500,
+        msg: '查询失败'
+      })
+    }else {
+      let data = result;
+      res.status(200).json({
+        code: 0,
+        data,
+        msg: '查询成功'
+      })
+    }
+  });
+});
+
 // 单选题：0，多选题：1，问答：2
 app.post("/addSubject", (req, res) => {
   let uid = uuid.v1();
-  let timestamp = new Date().getTime();
   let subject_options_key,subject_options_value ,reference_answer;
   if(req.body.subject_type == 0){
     subject_options_key = req.body.subject_options_key.join('-');
@@ -91,8 +111,8 @@ app.post("/addSubject", (req, res) => {
     subject_options_value = req.body.subject_options_value.join('-');
     reference_answer = req.body.reference_answer.join(',');
   }else {
-    subject_options_key = req.body.subject_options_key;
-    subject_options_value = req.body.subject_options_value;
+    subject_options_key = '';
+    subject_options_value = '';
     reference_answer = req.body.reference_answer;
   }
   let sql = `INSERT INTO subject (
@@ -105,8 +125,7 @@ app.post("/addSubject", (req, res) => {
     subject_options_value,
     reference_answer,
     answer_detail,
-    examId,
-    subject_index) VALUES (
+    examId) VALUES (
     '${uid}',
     '${req.body.type}',
     '${req.body.subject_describe}',
@@ -116,8 +135,7 @@ app.post("/addSubject", (req, res) => {
     '${subject_options_value}',
     '${reference_answer}',
     '${req.body.answer_detail}',
-    '${req.body.examId}',
-    ${req.body.index}
+    '${req.body.examId}'
     )`;
   db.query(sql, [], function(result, fields, err) {
     if(err){
@@ -126,6 +144,7 @@ app.post("/addSubject", (req, res) => {
         msg: '创建失败'
       })
     }else {
+      updateExamCount(req.body.examId)
       res.status(200).send({
         code: 0,
         data: {
@@ -138,45 +157,81 @@ app.post("/addSubject", (req, res) => {
 });
 
 app.post("/updateSubject", (req, res) => {
-  let uid = uuid.v1();
-  let timestamp = new Date().getTime();
-  let sql = `INSERT INTO exams VALUES ('${uid}', '${req.body.title}','${req.body.describe}',${timestamp},'',0,0)`;
+  let subject_options_key,subject_options_value ,reference_answer;
+  if(req.body.subject_type == 0){
+    subject_options_key = req.body.subject_options_key.join('-');
+    subject_options_value = req.body.subject_options_value.join('-');
+    reference_answer = req.body.reference_answer;
+  }else if (req.body.subject_type == 1){
+    subject_options_key = req.body.subject_options_key.join('-');
+    subject_options_value = req.body.subject_options_value.join('-');
+    reference_answer = req.body.reference_answer.join(',');
+  }else {
+    subject_options_key = '';
+    subject_options_value = '';
+    reference_answer = req.body.reference_answer;
+  }
+  let sql = `UPDATE subject SET subject_describe='${req.body.subject_describe}',
+            subject_title='${req.body.subject_title}',
+            subject_options_key='${subject_options_key}',
+            subject_options_value='${subject_options_value}',
+            reference_answer='${reference_answer}',
+            answer_detail='${req.body.answer_detail}' WHERE id = '${req.body.id}' `;
   db.query(sql, [], function(result, fields, err) {
     if(err){
       res.status(200).json({
         code: 500,
-        msg: '创建失败'
+        msg: '修改失败'
       })
     }else {
       res.status(200).send({
         code: 0,
-        data: {
-          uid
-        },
-        msg: '创建成功'
+        msg: '修改成功'
       })
     }
   });
 });
 
 app.post("/delSubject", (req, res) => {
-  let uid = uuid.v1();
-  let timestamp = new Date().getTime();
-  let sql = `INSERT INTO exams VALUES ('${uid}', '${req.body.title}','${req.body.describe}',${timestamp},'',0,0)`;
+  let sql = `DELETE FROM subject WHERE id = '${req.body.id}'`;
   db.query(sql, [], function(result, fields, err) {
     if(err){
       res.status(200).json({
         code: 500,
-        msg: '创建失败'
+        msg: '删除失败'
       })
     }else {
+      updateExamCount(req.body.examId)
       res.status(200).send({
         code: 0,
-        data: {
-          uid
-        },
-        msg: '创建成功'
+        msg: '删除成功'
       })
     }
   });
 });
+
+app.post("/delExam", (req, res) => {
+  let sql = `UPDATE exams SET status=0 WHERE id = '${req.body.id}'`;
+  db.query(sql, [], function(result, fields, err) {
+    if(err){
+      res.status(200).json({
+        code: 500,
+        msg: '删除失败'
+      })
+    }else {
+      res.status(200).send({
+        code: 0,
+        msg: '删除成功'
+      })
+    }
+  });
+});
+
+function updateExamCount(id) {
+  let sql = `UPDATE exams SET count = (SELECT COUNT(*) FROM subject where examId='${id}') WHERE id = '${id}' `;
+  db.query(sql, [], function(result, fields, err) {
+    if(err) {
+      console.log(err);
+    }
+  });
+}
