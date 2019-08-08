@@ -1,9 +1,15 @@
 <template>
   <div>
-    <el-form :model="radioQuestion"  ref="radioQuestion" label-width="100px" :rules="rules">
-      <br>
+    <el-form
+      :model="radioQuestion"
+      ref="radioQuestion"
+      label-width="100px"
+      :rules="rules"
+    >
+      <br />
       <el-form-item label="试题类题：" prop="type">
-        <el-input placeholder="请输入内容" v-model="radioQuestion.type"> </el-input>
+        <el-input placeholder="请输入内容" v-model="radioQuestion.type">
+        </el-input>
       </el-form-item>
       <el-form-item label="题目：" prop="subject_title">
         <Editor
@@ -25,12 +31,18 @@
           :label="item"
           v-for="(item, index) of radioQuestion.subject_options_key"
           :key="index"
-          >{{item}}.{{ radioQuestion.subject_options_value[index] }}</el-radio
+          >{{ item }}.{{ radioQuestion.subject_options_value[index] }}</el-radio
         >
       </el-form-item>
       <el-form-item label="添加选项：">
-        <el-input placeholder="请填写选项" v-model="subjectOption.key" style="margin-bottom:20px;"> </el-input>
-        <el-input placeholder="请填写内容" v-model="subjectOption.value"> </el-input>
+        <el-input
+          placeholder="请填写选项"
+          v-model="subjectOption.key"
+          style="margin-bottom:20px;"
+        >
+        </el-input>
+        <el-input placeholder="请填写内容" v-model="subjectOption.value">
+        </el-input>
         <el-button type="primary" class="addBtn" @click="addOption"
           >添加</el-button
         >
@@ -41,7 +53,9 @@
             :label="item"
             v-for="(item, index) of radioQuestion.subject_options_key"
             :key="index"
-            >{{item}}.{{ radioQuestion.subject_options_value[index] }}</el-radio
+            >{{ item }}.{{
+              radioQuestion.subject_options_value[index]
+            }}</el-radio
           >
         </el-radio-group>
       </el-form-item>
@@ -54,10 +68,19 @@
       </el-form-item>
       <el-form-item>
         <div class="addBtn">
-          <el-button type="primary" @click="save('radioQuestion')" v-if="!isEdit">保存</el-button>
-          <el-button type="primary" @click="edit('radioQuestion')" v-else>提交</el-button>
-          <el-button @click="close('radioQuestion')"  v-if="!isEdit">取消</el-button>
-          <el-button @click="del('radioQuestion')"  v-else>删除</el-button>
+          <el-button
+            type="primary"
+            @click="save('radioQuestion')"
+            v-if="!isEdit"
+            >保存</el-button
+          >
+          <el-button type="primary" @click="edit('radioQuestion')" v-else
+            >提交</el-button
+          >
+          <el-button @click="close('radioQuestion')" v-if="!isEdit"
+            >取消</el-button
+          >
+          <el-button @click="del('radioQuestion')" v-else>删除</el-button>
         </div>
       </el-form-item>
     </el-form>
@@ -98,57 +121,62 @@ export default {
         height: 300
       },
       subjectOption: {
-        key: '',
-        value: ''
+        key: "",
+        value: ""
       },
       radioQuestion: {
-        type:'',
-        examId: '',
+        type: "",
+        examId: "",
         subject_describe: "",
         subject_title: "",
         subject_type: 0,
         subject_options_key: [],
         subject_options_value: [],
-        reference_answer:'',
+        reference_answer: "",
         answer_detail: ""
       },
       rules: {
-        type: [
-          { required: true, message: '请输入题目类型', trigger: 'blur' },
-        ],
+        type: [{ required: true, message: "请输入题目类型", trigger: "blur" }],
         subject_describe: [
-          { required: true, message: '请输入题目描述', trigger: 'blur' }
+          { required: true, message: "请输入题目描述", trigger: "blur" }
         ],
         subject_title: [
-          { required: true, message: '请输入题目标题', trigger: 'blur' }
+          { required: true, message: "请输入题目标题", trigger: "blur" }
         ],
         reference_answer: [
-          { required: true, message: '请选择正确答案', trigger: 'change' }
+          { required: true, message: "请选择正确答案", trigger: "change" }
         ],
         answer_detail: [
-          { required: true, message: '请选择答案解析', trigger: 'blur' }
-        ],
+          { required: true, message: "请选择答案解析", trigger: "blur" }
+        ]
       }
     };
   },
   mounted() {
     tinymce.init({});
-    if(!this.isEdit) this.question.examId = this.examDetail.id;
-    else {
+    if (this.isEdit) {
       this.radioQuestion = this.questionDetail;
-      this.radioQuestion.subject_options_key = this.radioQuestion.subject_options_key.split('-');
-      this.radioQuestion.subject_options_value = this.radioQuestion.subject_options_value.split('-');
+      this.radioQuestion.subject_options_key = this.radioQuestion.subject_options_key.split(
+        "-"
+      );
+      this.radioQuestion.subject_options_value = this.radioQuestion.subject_options_value.split(
+        "-"
+      );
     }
+    this.radioQuestion.examId = this.examDetail.id;
   },
   methods: {
     addOption() {
-      if (this.subjectOption.key.length > 0 && this.subjectOption.value.length > 0) {
+      if (
+        this.subjectOption.key.length > 0 &&
+        this.subjectOption.value.length > 0
+      ) {
         this.radioQuestion.subject_options_key.push(this.subjectOption.key);
         this.radioQuestion.subject_options_value.push(this.subjectOption.value);
         this.subjectOption = {
-          key: '',
-          value: ''
-        }
+          key: "",
+          value: ""
+        };
       } else {
         this.$message({
           message: "请填写完整!",
@@ -157,26 +185,27 @@ export default {
       }
     },
     save(formName) {
-      this.$refs[formName].validate((valid) => {
+      this.$refs[formName].validate(valid => {
         if (valid) {
           this.$api.addSubject(this.radioQuestion).then(res => {
             this.$refs[formName].resetFields();
-            this.$emit('reset');
-          })
+            this.$emit("reset");
+            this.$emit("updateList");
+          });
         } else {
           return false;
         }
       });
     },
     edit(formName) {
-      this.$refs[formName].validate((valid) => {
+      this.$refs[formName].validate(valid => {
         if (valid) {
           this.$api.updateSubject(this.radioQuestion).then(res => {
             this.$message({
               message: res.msg,
-              type: 'success'
+              type: "success"
             });
-          })
+          });
         } else {
           return false;
         }
@@ -184,16 +213,21 @@ export default {
     },
     close(formName) {
       this.$refs[formName].resetFields();
-      this.$emit('reset');
+      this.$emit("reset");
     },
     del() {
-      this.$api.delSubject({id:this.radioQuestion.id,examId:this.radioQuestion.examId}).then(res => {
-        this.$message({
-          message: res.msg,
-          type: 'success'
+      this.$api
+        .delSubject({
+          id: this.radioQuestion.id,
+          examId: this.radioQuestion.examId
+        })
+        .then(res => {
+          this.$message({
+            message: res.msg,
+            type: "success"
+          });
+          this.$emit("updateList");
         });
-        this.$emit('updateList')
-      })
     }
   }
 };

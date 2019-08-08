@@ -9,10 +9,32 @@
       </el-form-item>
       <el-form-item label="试题内容：">
         <ol>
-          <li v-for="(item,index) in subjectList" :key="index" class="subjectList">
-            <RadioQuestion :questionDetail="item" :isEdit="true" v-if="item.subject_type == 0" @updateList="updateSubjectList"/>
-            <CheckboxQuestion :questionDetail="item" :isEdit="true" v-if="item.subject_type == 1" @updateList="updateSubjectList"/>
-            <QAandCodeQuestion :questionDetail="item" :isEdit="true" v-if="item.subject_type == 2" @updateList="updateSubjectList"/>
+          <li
+            v-for="(item, index) in subjectList"
+            :key="index"
+            class="subjectList"
+          >
+            <RadioQuestion
+              :questionDetail="item"
+              :isEdit="true"
+              :examDetail="examsInfo"
+              v-if="item.subject_type == 0"
+              @updateList="updateSubjectList"
+            />
+            <CheckboxQuestion
+              :questionDetail="item"
+              :isEdit="true"
+              :examDetail="examsInfo"
+              v-if="item.subject_type == 1"
+              @updateList="updateSubjectList"
+            />
+            <QAandCodeQuestion
+              :questionDetail="item"
+              :isEdit="true"
+              :examDetail="examsInfo"
+              v-if="item.subject_type == 2"
+              @updateList="updateSubjectList"
+            />
           </li>
         </ol>
       </el-form-item>
@@ -29,13 +51,13 @@
       class="radio"
       v-if="questionType == 'radio' || questionType == 'judge'"
     >
-      <RadioQuestion :examDetail="examsInfo" @reset="reset"/>
+      <RadioQuestion :examDetail="examsInfo" @reset="reset" @updateList="updateSubjectList"/>
     </div>
     <div class="checkbox" v-if="questionType == 'checkbox'">
-      <CheckboxQuestion :examDetail="examsInfo" @reset="reset"/>
+      <CheckboxQuestion :examDetail="examsInfo" @reset="reset" @updateList="updateSubjectList"/>
     </div>
     <div class="QA" v-if="questionType == 'QA' || questionType == 'code'">
-      <QAandCodeQuestion :examDetail="examsInfo" @reset="reset"/>
+      <QAandCodeQuestion :examDetail="examsInfo" @reset="reset" @updateList="updateSubjectList"/>
     </div>
   </div>
 </template>
@@ -61,7 +83,7 @@ export default {
     return {
       examsInfo: {
         title: "",
-        describe: "",
+        describe: ""
       },
       questionType: "",
       subjectList: []
@@ -69,7 +91,7 @@ export default {
   },
   methods: {
     reset() {
-      this.questionType = ''
+      this.questionType = "";
     },
     updateSubjectList() {
       this.getSubjectList();
@@ -86,13 +108,11 @@ export default {
         });
     },
     getSubjectList() {
-      this.$api.getSubjectList({ examId: this.$route.params.id })
-      .then(res => {
+      this.$api.getSubjectList({ examId: this.$route.params.id }).then(res => {
         this.subjectList = res.data;
-      })
+      });
     }
   }
 };
 </script>
-<style lang="scss" scoped>
-</style>
+<style lang="scss" scoped></style>

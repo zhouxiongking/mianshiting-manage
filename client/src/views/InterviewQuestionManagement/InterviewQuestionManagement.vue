@@ -4,7 +4,12 @@
       >新增</el-button
     >
     <el-table :data="tableData" style="width: 100%" border :height="600">
-      <el-table-column prop="create_date" label="创建时间" :formatter="formatTime"> </el-table-column>
+      <el-table-column
+        prop="create_date"
+        label="创建时间"
+        :formatter="formatTime"
+      >
+      </el-table-column>
       <el-table-column prop="title" label="标题"> </el-table-column>
       <el-table-column prop="describe" label="描述"> </el-table-column>
       <el-table-column prop="author" label="作者"> </el-table-column>
@@ -67,7 +72,7 @@ export default {
       total: 0,
       pageInfo: {
         pageIndex: 1,
-        pageSize: 10,
+        pageSize: 10
       },
       tableData: []
     };
@@ -90,7 +95,7 @@ export default {
           .then(res => {
             this.createExams = false;
             this.$router.push({
-              path: "/interQuestion/" + res.data.uid,
+              path: "/interQuestion/" + res.data.uid
             });
           })
           .catch(err => {
@@ -99,12 +104,15 @@ export default {
       }
     },
     getExamsList() {
-      this.$api.getExamsList(this.pageInfo).then(res => {
-        this.total = res.total;
-        this.tableData = res.data;
-      }).catch(err => {
-            console.log(err);
-          });
+      this.$api
+        .getExamsList(this.pageInfo)
+        .then(res => {
+          this.total = res.total;
+          this.tableData = res.data;
+        })
+        .catch(err => {
+          console.log(err);
+        });
     },
     handleSizeChange(size) {
       this.pageInfo.pageSize = size;
@@ -117,27 +125,45 @@ export default {
     },
     editExam(id) {
       this.$router.push({
-        path: "/interQuestion/" + id,
+        path: "/interQuestion/" + id
       });
     },
     delExam(id) {
-      this.$api.delExam({id}).then(res => {
+      this.$api.delExam({ id }).then(res => {
         this.$message({
           message: res.msg,
-          type: 'success'
+          type: "success"
         });
         this.getExamsList();
-      })
+      });
     },
     formatTime(row, column, cellValue, index) {
       let date = new Date(parseInt(cellValue));
       let year = date.getFullYear();
-      let month = (date.getMonth() + 1) > 10 ? date.getMonth() + 1 : '0' + (date.getMonth() + 1);
-      let day = date.getDate() > 10 ? date.getDate() : '0' + date.getDate();
-      let hours = date.getHours() > 10 ? date.getHours() : '0' + date.getHours();
-      let minutes = date.getMinutes() > 10 ? date.getMinutes() : '0' + date.getMinutes();
-      let seconds = date.getSeconds() > 10 ? date.getSeconds() : '0' + date.getSeconds();
-      return year + '-' + month + '-' + day + ' ' + hours + ':' + minutes + ':' + seconds;
+      let month =
+        date.getMonth() + 1 > 10
+          ? date.getMonth() + 1
+          : "0" + (date.getMonth() + 1);
+      let day = date.getDate() > 10 ? date.getDate() : "0" + date.getDate();
+      let hours =
+        date.getHours() > 10 ? date.getHours() : "0" + date.getHours();
+      let minutes =
+        date.getMinutes() > 10 ? date.getMinutes() : "0" + date.getMinutes();
+      let seconds =
+        date.getSeconds() > 10 ? date.getSeconds() : "0" + date.getSeconds();
+      return (
+        year +
+        "-" +
+        month +
+        "-" +
+        day +
+        " " +
+        hours +
+        ":" +
+        minutes +
+        ":" +
+        seconds
+      );
     }
   }
 };

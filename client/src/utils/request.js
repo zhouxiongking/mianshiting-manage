@@ -7,7 +7,7 @@ export default function $axios(options) {
   return new Promise((resolve, reject) => {
     const instance = axios.create({
       baseURL: config.baseURL,
-      headers: {},
+      headers: {}
     });
 
     // request 拦截器
@@ -44,8 +44,8 @@ export default function $axios(options) {
         // err.response = response
 
         // throw err
-        if(data.code != 0){
-          Promise.reject(data)
+        if (data.code != 0) {
+          Promise.reject(data);
         }
         return data;
       },

@@ -17,7 +17,7 @@
                   <i class="el-icon-s-management"></i>
                   <span class="IQ">面试题</span>
                 </template>
-                <el-menu-item index="interviewQuestionManagement" class="IQM"
+                <el-menu-item index="/interviewQuestionManagement" class="IQM"
                   >面试题管理</el-menu-item
                 >
               </el-submenu>
