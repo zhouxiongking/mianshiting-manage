@@ -128,13 +128,13 @@ app.post("/addSubject", (req, res) => {
     examId) VALUES (
     '${uid}',
     '${req.body.type}',
-    '${req.body.subject_describe}',
+    ${db.mysql.escape(req.body.subject_describe)},
     '${req.body.subject_type}',
-    '${req.body.subject_title}',
+    ${db.mysql.escape(req.body.subject_title)},
     '${subject_options_key}',
     '${subject_options_value}',
-    '${reference_answer}',
-    '${req.body.answer_detail}',
+    ${db.mysql.escape(reference_answer)},
+    ${db.mysql.escape(req.body.answer_detail)},
     '${req.body.examId}'
     )`;
   db.query(sql, [], function(result, fields, err) {
@@ -171,12 +171,12 @@ app.post("/updateSubject", (req, res) => {
     subject_options_value = '';
     reference_answer = req.body.reference_answer;
   }
-  let sql = `UPDATE subject SET subject_describe='${req.body.subject_describe}',
-            subject_title='${req.body.subject_title}',
+  let sql = `UPDATE subject SET subject_describe=${db.mysql.escape(req.body.subject_describe)},
+            subject_title=${db.mysql.escape(req.body.subject_title)},
             subject_options_key='${subject_options_key}',
             subject_options_value='${subject_options_value}',
-            reference_answer='${reference_answer}',
-            answer_detail='${req.body.answer_detail}' WHERE id = '${req.body.id}' `;
+            reference_answer=${db.mysql.escape(reference_answer)},
+            answer_detail=${db.mysql.escape(req.body.answer_detail)} WHERE id = '${req.body.id}' `;
   db.query(sql, [], function(result, fields, err) {
     if(err){
       res.status(200).json({
