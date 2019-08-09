@@ -13,7 +13,7 @@ app.listen(3000, () => {
 app.post("/createExams", (req, res) => {
   let uid = uuid.v1();
   let timestamp = new Date().getTime();
-  let sql = `INSERT INTO exams VALUES ('${uid}', '${req.body.title}','${req.body.describe}',${timestamp},'',0,0)`;
+  let sql = `INSERT INTO exams VALUES ('${uid}', '${req.body.title}','${req.body.describe}',${timestamp},'',0,0,1)`;
   db.query(sql, [], function(result, fields, err) {
     if(err){
       res.status(200).json({
