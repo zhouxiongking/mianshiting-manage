@@ -13,7 +13,7 @@ app.listen(3000, () => {
 app.post("/createExams", (req, res) => {
   let uid = uuid.v1();
   let timestamp = new Date().getTime();
-  let sql = `INSERT INTO exams VALUES ('${uid}', '${req.body.title}','${req.body.describe}',${timestamp},'',0,0)`;
+  let sql = `INSERT INTO exams VALUES ('${uid}', '${req.body.title}','${req.body.describe}',${timestamp},'',0,0,1)`;
   db.query(sql, [], function(result, fields, err) {
     if(err){
       res.status(200).json({
@@ -98,17 +98,17 @@ app.get("/getSubjectList", (req, res) => {
   });
 });
 
-// 单选题：single，多选题：multi，问答：qa，编程：program
+// 单选题：0，多选题：1，问答：2
 app.post("/addSubject", (req, res) => {
   let uid = uuid.v1();
   let subject_options_key,subject_options_value ,reference_answer;
-  if(req.body.subject_type == 'single'){
+  if(req.body.subject_type == 0){
     subject_options_key = req.body.subject_options_key.join('-');
     subject_options_value = req.body.subject_options_value.join('-');
     reference_answer = req.body.reference_answer;
-  }else if (req.body.subject_type == 'multi'){
+  }else if (req.body.subject_type == 1){
     subject_options_key = req.body.subject_options_key.join('-');
-    subject_options_value = req.body.subject_options_value.join('////');
+    subject_options_value = req.body.subject_options_value.join('-');
     reference_answer = req.body.reference_answer.join(',');
   }else {
     subject_options_key = '';
@@ -128,13 +128,13 @@ app.post("/addSubject", (req, res) => {
     examId) VALUES (
     '${uid}',
     '${req.body.type}',
-    '${req.body.subject_describe}',
+    ${db.mysql.escape(req.body.subject_describe)},
     '${req.body.subject_type}',
-    '${req.body.subject_title}',
+    ${db.mysql.escape(req.body.subject_title)},
     '${subject_options_key}',
     '${subject_options_value}',
-    '${reference_answer}',
-    '${req.body.answer_detail}',
+    ${db.mysql.escape(reference_answer)},
+    ${db.mysql.escape(req.body.answer_detail)},
     '${req.body.examId}'
     )`;
   db.query(sql, [], function(result, fields, err) {
@@ -171,12 +171,12 @@ app.post("/updateSubject", (req, res) => {
     subject_options_value = '';
     reference_answer = req.body.reference_answer;
   }
-  let sql = `UPDATE subject SET subject_describe='${req.body.subject_describe}',
-            subject_title='${req.body.subject_title}',
+  let sql = `UPDATE subject SET subject_describe=${db.mysql.escape(req.body.subject_describe)},
+            subject_title=${db.mysql.escape(req.body.subject_title)},
             subject_options_key='${subject_options_key}',
             subject_options_value='${subject_options_value}',
-            reference_answer='${reference_answer}',
-            answer_detail='${req.body.answer_detail}' WHERE id = '${req.body.id}' `;
+            reference_answer=${db.mysql.escape(reference_answer)},
+            answer_detail=${db.mysql.escape(req.body.answer_detail)} WHERE id = '${req.body.id}' `;
   db.query(sql, [], function(result, fields, err) {
     if(err){
       res.status(200).json({

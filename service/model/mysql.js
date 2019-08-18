@@ -30,7 +30,8 @@ module.exports = {
         });
       });
     });
-  }
+  },
+  mysql
 };
 
 // var db=require('../model/mysql.js');
