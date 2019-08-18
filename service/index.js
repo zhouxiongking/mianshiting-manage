@@ -104,7 +104,7 @@ app.post("/addSubject", (req, res) => {
   let subject_options_key,subject_options_value ,reference_answer;
   if(req.body.subject_type == 'single'){
     subject_options_key = req.body.subject_options_key.join('-');
-    subject_options_value = req.body.subject_options_value.join('-');
+    subject_options_value = req.body.subject_options_value.join('////');
     reference_answer = req.body.reference_answer;
   }else if (req.body.subject_type == 'multi'){
     subject_options_key = req.body.subject_options_key.join('-');
@@ -158,20 +158,22 @@ app.post("/addSubject", (req, res) => {
 
 app.post("/updateSubject", (req, res) => {
   let subject_options_key,subject_options_value ,reference_answer;
-  if(req.body.subject_type == 0){
+  if(req.body.subject_type == 'single'){
     subject_options_key = req.body.subject_options_key.join('-');
-    subject_options_value = req.body.subject_options_value.join('-');
+    subject_options_value = req.body.subject_options_value.join('////');
     reference_answer = req.body.reference_answer;
-  }else if (req.body.subject_type == 1){
+  }else if (req.body.subject_type == 'multi'){
     subject_options_key = req.body.subject_options_key.join('-');
-    subject_options_value = req.body.subject_options_value.join('-');
+    subject_options_value = req.body.subject_options_value.join('////');
     reference_answer = req.body.reference_answer.join(',');
   }else {
     subject_options_key = '';
     subject_options_value = '';
     reference_answer = req.body.reference_answer;
   }
-  let sql = `UPDATE subject SET subject_describe=${db.mysql.escape(req.body.subject_describe)},
+  let sql = `UPDATE subject SET 
+            type=${db.mysql.escape(req.body.type)},
+            subject_describe=${db.mysql.escape(req.body.subject_describe)},
             subject_title=${db.mysql.escape(req.body.subject_title)},
             subject_options_key='${subject_options_key}',
             subject_options_value='${subject_options_value}',
