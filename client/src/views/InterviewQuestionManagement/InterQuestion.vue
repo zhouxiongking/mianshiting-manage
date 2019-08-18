@@ -19,6 +19,7 @@
               :isEdit="true"
               :examDetail="examsInfo"
               v-if="item.subject_type == 'single'"
+              :key="index"
               @updateList="updateSubjectList"
             />
             <CheckboxQuestion
@@ -26,6 +27,7 @@
               :isEdit="true"
               :examDetail="examsInfo"
               v-if="item.subject_type == 'multi'"
+              :key="index"
               @updateList="updateSubjectList"
             />
             <QAandCodeQuestion
@@ -34,6 +36,7 @@
               :examDetail="examsInfo"
               :subject_type="item.subject_type"
               v-if="item.subject_type == 'qa' || item.subject_type == 'program'"
+              :key="index"
               @updateList="updateSubjectList"
             />
           </li>

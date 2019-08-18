@@ -98,17 +98,17 @@ app.get("/getSubjectList", (req, res) => {
   });
 });
 
-// 单选题：0，多选题：1，问答：2
+// 单选题：single，多选题：multi，问答：qa，编程：program
 app.post("/addSubject", (req, res) => {
   let uid = uuid.v1();
   let subject_options_key,subject_options_value ,reference_answer;
-  if(req.body.subject_type == 0){
+  if(req.body.subject_type == 'single'){
     subject_options_key = req.body.subject_options_key.join('-');
     subject_options_value = req.body.subject_options_value.join('-');
     reference_answer = req.body.reference_answer;
-  }else if (req.body.subject_type == 1){
+  }else if (req.body.subject_type == 'multi'){
     subject_options_key = req.body.subject_options_key.join('-');
-    subject_options_value = req.body.subject_options_value.join('-');
+    subject_options_value = req.body.subject_options_value.join('////');
     reference_answer = req.body.reference_answer.join(',');
   }else {
     subject_options_key = '';

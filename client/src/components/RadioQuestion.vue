@@ -163,7 +163,7 @@ export default {
         "-"
       );
       this.radioQuestion.subject_options_value = this.radioQuestion.subject_options_value.split(
-        "-"
+        "////"
       );
     }
     this.radioQuestion.examId = this.examDetail.id;

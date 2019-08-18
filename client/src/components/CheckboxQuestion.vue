@@ -124,7 +124,7 @@ export default {
         "-"
       );
       this.checkboxQuestion.subject_options_value = this.checkboxQuestion.subject_options_value.split(
-        "-"
+        "////"
       );
       this.checkboxQuestion.reference_answer = this.checkboxQuestion.reference_answer.split(
         ","
