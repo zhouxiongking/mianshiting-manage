@@ -18,21 +18,22 @@
               :questionDetail="item"
               :isEdit="true"
               :examDetail="examsInfo"
-              v-if="item.subject_type == 0"
+              v-if="item.subject_type == 'single'"
               @updateList="updateSubjectList"
             />
             <CheckboxQuestion
               :questionDetail="item"
               :isEdit="true"
               :examDetail="examsInfo"
-              v-if="item.subject_type == 1"
+              v-if="item.subject_type == 'multi'"
               @updateList="updateSubjectList"
             />
             <QAandCodeQuestion
               :questionDetail="item"
               :isEdit="true"
               :examDetail="examsInfo"
-              v-if="item.subject_type == 2"
+              :subject_type="item.subject_type"
+              v-if="item.subject_type == 'qa' || item.subject_type == 'program'"
               @updateList="updateSubjectList"
             />
           </li>
@@ -41,23 +42,25 @@
     </el-form>
     <h2>新增面试题</h2>
     <el-radio-group v-model="questionType">
-      <el-radio label="judge">判断题</el-radio>
       <el-radio label="radio">单选题</el-radio>
       <el-radio label="checkbox">多选题</el-radio>
-      <el-radio label="QA">问答题</el-radio>
-      <el-radio label="code">编程题</el-radio>
+      <el-radio label="qa">问答题</el-radio>
+      <el-radio label="program">编程题</el-radio>
     </el-radio-group>
     <div
       class="radio"
-      v-if="questionType == 'radio' || questionType == 'judge'"
+      v-if="questionType == 'radio'"
     >
       <RadioQuestion :examDetail="examsInfo" @reset="reset" @updateList="updateSubjectList"/>
     </div>
     <div class="checkbox" v-if="questionType == 'checkbox'">
       <CheckboxQuestion :examDetail="examsInfo" @reset="reset" @updateList="updateSubjectList"/>
     </div>
-    <div class="QA" v-if="questionType == 'QA' || questionType == 'code'">
-      <QAandCodeQuestion :examDetail="examsInfo" @reset="reset" @updateList="updateSubjectList"/>
+    <div class="QA" v-if="questionType == 'qa'" :key="questionType">
+      <QAandCodeQuestion :examDetail="examsInfo" @reset="reset" :subject_type="questionType" @updateList="updateSubjectList"/>
+    </div>
+    <div class="QA" v-if="questionType == 'program'" :key="questionType">
+      <QAandCodeQuestion :examDetail="examsInfo" @reset="reset" :subject_type="questionType" @updateList="updateSubjectList"/>
     </div>
   </div>
 </template>

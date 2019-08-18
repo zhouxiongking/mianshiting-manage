@@ -8,8 +8,9 @@
     >
       <br />
       <el-form-item label="试题类题：" prop="type">
-        <el-input placeholder="请输入内容" v-model="radioQuestion.type">
-        </el-input>
+        <el-select v-model="radioQuestion.type">
+          <el-option v-for="(item, index) in subjecttype" :key="index" :label="item.value" :value="item.key"></el-option>
+        </el-select>
       </el-form-item>
       <el-form-item label="题目：" prop="subject_title">
         <Editor
@@ -93,6 +94,7 @@ import "tinymce/themes/silver/theme";
 import Editor from "@tinymce/tinymce-vue";
 import "tinymce/themes/silver/theme.min.js"; //引入富文本的主要脚本
 import lang from "@/assets/tinymce/zh_CN.js"; //引用中文语言
+import { type } from "./enum.js";
 export default {
   components: {
     Editor
@@ -120,6 +122,7 @@ export default {
         skin_url: "/tinymce/skins/lightgray",
         height: 300
       },
+      subjecttype:type,
       subjectOption: {
         key: "",
         value: ""
@@ -129,7 +132,7 @@ export default {
         examId: "",
         subject_describe: "",
         subject_title: "",
-        subject_type: 0,
+        subject_type: 'single',
         subject_options_key: [],
         subject_options_value: [],
         reference_answer: "",
