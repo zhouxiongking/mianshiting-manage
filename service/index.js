@@ -2,6 +2,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const uuid = require("node-uuid");
 const fs = require("fs-extra");
+const dayjs = require("dayjs");
 const app = express();
 const db = require("./model/mysql.js");
 app.use(express.static("wwwroot"));
@@ -9,26 +10,10 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.listen(3000, () => {
   console.log("start....");
 });
-Date.prototype.Format = function (fmt) { //author: meizz 
-  var o = {
-      "M+": this.getMonth() + 1, //月份 
-      "d+": this.getDate(), //日 
-      "h+": this.getHours(), //小时 
-      "m+": this.getMinutes(), //分 
-      "s+": this.getSeconds(), //秒 
-      "q+": Math.floor((this.getMonth() + 3) / 3), //季度 
-      "S": this.getMilliseconds() //毫秒 
-  };
-  if (/(y+)/.test(fmt)) fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
-  for (var k in o)
-  if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
-  return fmt;
-}
 // 创建新面试题
 app.post("/createExams", (req, res) => {
   let uid = uuid.v1();
-  let sql = `INSERT INTO exams VALUES ('${uid}', ${db.mysql.escape(req.body.title)},${db.mysql.escape(req.body.describe)},${db.mysql.escape(new Date().Format("yyyy-MM-dd HH:mm:ss"))},'',0,0,1)`;
-  console.log(sql)
+  let sql = `INSERT INTO exams VALUES ('${uid}', ${db.mysql.escape(req.body.title)},${db.mysql.escape(req.body.describe)},'${dayjs().format("YYYY-MM-DD HH:mm:ss")}','',0,0,1)`;
   db.query(sql, [], function(result, fields, err) {
     if(err){
       res.status(200).json({
@@ -153,7 +138,7 @@ app.post("/addSubject", (req, res) => {
     ${db.mysql.escape(reference_answer)},
     ${db.mysql.escape(req.body.answer_detail)},
     '${req.body.examId}',
-    ${db.mysql.escape(new Date().Format("yyyy-MM-dd HH:mm:ss"))},
+    '${dayjs().format("YYYY-MM-DD HH:mm:ss")}',
     ${db.mysql.escape(req.body.reference_linking)}
     )`;
   db.query(sql, [], function(result, fields, err) {
