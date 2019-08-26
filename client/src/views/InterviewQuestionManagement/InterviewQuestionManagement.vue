@@ -7,7 +7,6 @@
       <el-table-column
         prop="create_date"
         label="创建时间"
-        :formatter="formatTime"
       >
       </el-table-column>
       <el-table-column prop="title" label="标题"> </el-table-column>
@@ -136,34 +135,6 @@ export default {
         });
         this.getExamsList();
       });
-    },
-    formatTime(row, column, cellValue, index) {
-      let date = new Date(parseInt(cellValue));
-      let year = date.getFullYear();
-      let month =
-        date.getMonth() + 1 > 10
-          ? date.getMonth() + 1
-          : "0" + (date.getMonth() + 1);
-      let day = date.getDate() > 10 ? date.getDate() : "0" + date.getDate();
-      let hours =
-        date.getHours() > 10 ? date.getHours() : "0" + date.getHours();
-      let minutes =
-        date.getMinutes() > 10 ? date.getMinutes() : "0" + date.getMinutes();
-      let seconds =
-        date.getSeconds() > 10 ? date.getSeconds() : "0" + date.getSeconds();
-      return (
-        year +
-        "-" +
-        month +
-        "-" +
-        day +
-        " " +
-        hours +
-        ":" +
-        minutes +
-        ":" +
-        seconds
-      );
     }
   }
 };
