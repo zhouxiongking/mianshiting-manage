@@ -14,18 +14,21 @@
         <Editor class="CheckboxQuestion" v-model="checkboxQuestion.subject_describe" :init="editorInit"></Editor>
       </el-form-item>
       <el-form-item label="选项：">
-        <el-checkbox disabled :label="item" v-for="(item, index) of checkboxQuestion.subject_options_key" :key="index">
-          {{ item }}.{{
-          checkboxQuestion.subject_options_value[index]
-          }}
-        </el-checkbox>
+        <span v-for="(item, index) of checkboxQuestion.subject_options_key" :key="index">
+          <el-checkbox disabled :label="item" >
+            {{ item }}.{{
+            checkboxQuestion.subject_options_value[index]
+            }}
+          </el-checkbox>
+          <el-button @click="delOption(index)" style="margin: 0 10px;" type="warning" size="mini">删除</el-button>
+        </span>
       </el-form-item>
       <el-form-item label="添加选项：">
         <el-input placeholder="请填写选项" v-model="subjectOption.key" style="margin-bottom:20px;"></el-input>
         <el-input placeholder="请填写内容" v-model="subjectOption.value"></el-input>
         <el-button type="primary" class="addBtn" @click="addOption">添加</el-button>
       </el-form-item>
-      <el-form-item label="正确答案：" prop="reference_answer">
+      <el-form-item label="正确答案：" prop="reference_answer" style="margin-bottom:20px;">
         <el-checkbox-group v-model="checkboxQuestion.reference_answer">
           <el-checkbox :label="item" v-for="(item, index) of checkboxQuestion.subject_options_key" :key="index">
             {{ item }}.{{
@@ -36,6 +39,9 @@
       </el-form-item>
       <el-form-item label="解答过程：" prop="answer_detail">
         <Editor class="CheckboxQuestion" v-model="checkboxQuestion.answer_detail" :init="editorInit"></Editor>
+      </el-form-item>
+      <el-form-item label="参考链接：">
+        <el-input placeholder="请填写参考链接" v-model="subjectOption.reference_linking"></el-input>
       </el-form-item>
       <el-form-item>
         <div class="addBtn">
@@ -97,7 +103,8 @@ export default {
         subject_options_key: [],
         subject_options_value: [],
         reference_answer: [],
-        answer_detail: ""
+        answer_detail: "",
+        reference_linking: ""
       },
       rules: {
         type: [{ required: true, message: "请选择题目类型", trigger: "change" }],
@@ -133,25 +140,37 @@ export default {
     this.checkboxQuestion.examId = this.examDetail.id;
   },
   methods: {
+    delOption(index) {
+      this.checkboxQuestion.subject_options_key.splice(index,1);
+      this.checkboxQuestion.subject_options_value.splice(index,1);
+      this.checkboxQuestion.reference_answer = '';
+    },
     addOption() {
       if (
-        this.subjectOption.key.length > 0 &&
-        this.subjectOption.value.length > 0
+        this.subjectOption.key.length == 0 &&
+        this.subjectOption.value.length == 0
       ) {
-        this.checkboxQuestion.subject_options_key.push(this.subjectOption.key);
-        this.checkboxQuestion.subject_options_value.push(
-          this.subjectOption.value
-        );
-        this.subjectOption = {
-          key: "",
-          value: ""
-        };
-      } else {
         this.$message({
           message: "请填写完整!",
           type: "warning"
         });
+        return false;
       }
+      if(this.checkboxQuestion.subject_options_key.indexOf(this.subjectOption.key) != -1) {
+        this.$message({
+          message: "重复选项!",
+          type: "warning"
+        });
+        return false;
+      }
+      this.checkboxQuestion.subject_options_key.push(this.subjectOption.key);
+      this.checkboxQuestion.subject_options_value.push(
+        this.subjectOption.value
+      );
+      this.subjectOption = {
+        key: "",
+        value: ""
+      };
     },
     save(formName) {
       this.$refs[formName].validate(valid => {

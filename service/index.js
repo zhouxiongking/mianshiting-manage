@@ -9,11 +9,26 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.listen(3000, () => {
   console.log("start....");
 });
+Date.prototype.Format = function (fmt) { //author: meizz 
+  var o = {
+      "M+": this.getMonth() + 1, //月份 
+      "d+": this.getDate(), //日 
+      "h+": this.getHours(), //小时 
+      "m+": this.getMinutes(), //分 
+      "s+": this.getSeconds(), //秒 
+      "q+": Math.floor((this.getMonth() + 3) / 3), //季度 
+      "S": this.getMilliseconds() //毫秒 
+  };
+  if (/(y+)/.test(fmt)) fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+  for (var k in o)
+  if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+  return fmt;
+}
 // 创建新面试题
 app.post("/createExams", (req, res) => {
   let uid = uuid.v1();
-  let timestamp = new Date().getTime();
-  let sql = `INSERT INTO exams VALUES ('${uid}', '${req.body.title}','${req.body.describe}',${timestamp},'',0,0,1)`;
+  let sql = `INSERT INTO exams VALUES ('${uid}', ${db.mysql.escape(req.body.title)},${db.mysql.escape(req.body.describe)},${db.mysql.escape(new Date().Format("yyyy-MM-dd HH:mm:ss"))},'',0,0,1)`;
+  console.log(sql)
   db.query(sql, [], function(result, fields, err) {
     if(err){
       res.status(200).json({
@@ -79,7 +94,7 @@ app.get("/getExamsList", (req, res) => {
 
 // 获取面试题列表
 app.get("/getSubjectList", (req, res) => {
-  let sql = `SELECT * FROM subject where examId='${req.query.examId}'`;
+  let sql = `SELECT * FROM subject where exam_id='${req.query.examId}'`;
   db.query(sql, [], function(result, fields, err) {
     if(err){
       console.log(err)
@@ -125,7 +140,9 @@ app.post("/addSubject", (req, res) => {
     subject_options_value,
     reference_answer,
     answer_detail,
-    examId) VALUES (
+    exam_id,
+    upload_time,
+    reference_linking) VALUES (
     '${uid}',
     '${req.body.type}',
     ${db.mysql.escape(req.body.subject_describe)},
@@ -135,7 +152,9 @@ app.post("/addSubject", (req, res) => {
     '${subject_options_value}',
     ${db.mysql.escape(reference_answer)},
     ${db.mysql.escape(req.body.answer_detail)},
-    '${req.body.examId}'
+    '${req.body.examId}',
+    ${db.mysql.escape(new Date().Format("yyyy-MM-dd HH:mm:ss"))},
+    ${db.mysql.escape(req.body.reference_linking)}
     )`;
   db.query(sql, [], function(result, fields, err) {
     if(err){
@@ -178,7 +197,9 @@ app.post("/updateSubject", (req, res) => {
             subject_options_key='${subject_options_key}',
             subject_options_value='${subject_options_value}',
             reference_answer=${db.mysql.escape(reference_answer)},
-            answer_detail=${db.mysql.escape(req.body.answer_detail)} WHERE id = '${req.body.id}' `;
+            exam_id='${req.body.examId}',
+            answer_detail=${db.mysql.escape(req.body.answer_detail)},
+            reference_linking=${db.mysql.escape(req.body.reference_linking)} WHERE id = '${req.body.id}' `;
   db.query(sql, [], function(result, fields, err) {
     if(err){
       res.status(200).json({
@@ -230,7 +251,7 @@ app.post("/delExam", (req, res) => {
 });
 
 function updateExamCount(id) {
-  let sql = `UPDATE exams SET count = (SELECT COUNT(*) FROM subject where examId='${id}') WHERE id = '${id}' `;
+  let sql = `UPDATE exams SET count = (SELECT COUNT(*) FROM subject where exam_id='${id}') WHERE id = '${id}' `;
   db.query(sql, [], function(result, fields, err) {
     if(err) {
       console.log(err);

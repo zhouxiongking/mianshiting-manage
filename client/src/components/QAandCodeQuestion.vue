@@ -40,6 +40,9 @@
           :init="editorInit"
         ></Editor>
       </el-form-item>
+      <el-form-item label="参考链接：">
+        <el-input placeholder="请填写参考链接" v-model="question.reference_linking"></el-input>
+      </el-form-item>
       <el-form-item>
         <div class="addBtn">
           <el-button type="primary" @click="save('question')" v-if="!isEdit"
@@ -104,7 +107,8 @@ export default {
         subject_options_key: [],
         subject_options_value: [],
         reference_answer: "",
-        answer_detail: ""
+        answer_detail: "",
+        reference_linking: ""
       },
       rules: {
         type: [{ required: true, message: "请选择试题类型", trigger: "change" }],

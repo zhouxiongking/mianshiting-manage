@@ -27,13 +27,14 @@
         ></Editor>
       </el-form-item>
       <el-form-item label="选项：">
-        <el-radio
-          disabled
-          :label="item"
-          v-for="(item, index) of radioQuestion.subject_options_key"
-          :key="index"
-          >{{ item }}.{{ radioQuestion.subject_options_value[index] }}</el-radio
-        >
+        <span v-for="(item, index) of radioQuestion.subject_options_key" :key="index">
+          <el-radio
+            disabled
+            :label="item"
+            >{{ item }}.{{ radioQuestion.subject_options_value[index] }}</el-radio
+          >
+          <el-button @click="delOption(index)" style="margin-right:10px;" type="warning" size="mini">删除</el-button>
+        </span>
       </el-form-item>
       <el-form-item label="添加选项：">
         <el-input
@@ -48,7 +49,7 @@
           >添加</el-button
         >
       </el-form-item>
-      <el-form-item label="正确答案：" prop="reference_answer">
+      <el-form-item label="正确答案：" prop="reference_answer" style="margin-bottom:20px;">
         <el-radio-group v-model="radioQuestion.reference_answer">
           <el-radio
             :label="item"
@@ -66,6 +67,9 @@
           v-model="radioQuestion.answer_detail"
           :init="editorInit"
         ></Editor>
+      </el-form-item>
+      <el-form-item label="参考链接：">
+        <el-input placeholder="请填写参考链接" v-model="radioQuestion.reference_linking"></el-input>
       </el-form-item>
       <el-form-item>
         <div class="addBtn">
@@ -136,7 +140,8 @@ export default {
         subject_options_key: [],
         subject_options_value: [],
         reference_answer: "",
-        answer_detail: ""
+        answer_detail: "",
+        reference_linking: ""
       },
       rules: {
         type: [{ required: true, message: "请输入题目类型", trigger: "blur" }],
@@ -169,23 +174,35 @@ export default {
     this.radioQuestion.examId = this.examDetail.id;
   },
   methods: {
+    delOption(index) {
+      this.radioQuestion.subject_options_key.splice(index,1);
+      this.radioQuestion.subject_options_value.splice(index,1);
+      this.radioQuestion.reference_answer = '';
+    },
     addOption() {
       if (
-        this.subjectOption.key.length > 0 &&
-        this.subjectOption.value.length > 0
+        this.subjectOption.key.length == 0 &&
+        this.subjectOption.value.length == 0
       ) {
-        this.radioQuestion.subject_options_key.push(this.subjectOption.key);
-        this.radioQuestion.subject_options_value.push(this.subjectOption.value);
-        this.subjectOption = {
-          key: "",
-          value: ""
-        };
-      } else {
         this.$message({
           message: "请填写完整!",
           type: "warning"
         });
+        return false;
       }
+      if(this.radioQuestion.subject_options_key.indexOf(this.subjectOption.key) != -1) {
+        this.$message({
+          message: "重复选项!",
+          type: "warning"
+        });
+        return false;
+      }
+      this.radioQuestion.subject_options_key.push(this.subjectOption.key);
+      this.radioQuestion.subject_options_value.push(this.subjectOption.value);
+      this.subjectOption = {
+        key: "",
+        value: ""
+      };
     },
     save(formName) {
       this.$refs[formName].validate(valid => {
