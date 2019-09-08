@@ -21,6 +21,18 @@ export default new Router({
           name: "InterQuestion",
           component: () =>
             import("@/views/InterviewQuestionManagement/InterQuestion.vue")
+        },
+        {
+          path: "/enterprisePaperManage",
+          name: "enterprisePaperManage",
+          component: () =>
+            import("@/views/InterviewQuestionManagement/EnterprisePaperManage.vue")
+        },
+        {
+          path: "/enterprisePaperDetail/:id",
+          name: "enterprisePaperDetail",
+          component: () =>
+            import("@/views/InterviewQuestionManagement/EnterprisePaperDetail.vue")
         }
       ]
     },

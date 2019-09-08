@@ -13,20 +13,36 @@ app.listen(3000, () => {
 // 创建新面试题
 app.post("/createExams", (req, res) => {
   let uid = uuid.v1();
-  let sql = `INSERT INTO exams VALUES ('${uid}', ${db.mysql.escape(req.body.title)},${db.mysql.escape(req.body.describe)},'${dayjs().format("YYYY-MM-DD HH:mm:ss")}','',0,0,1)`;
-  db.query(sql, [], function(result, fields, err) {
-    if(err){
+  const examType = req.body.exam_type || '';
+  const enterpriseName = req.body.enterprise_name || '';
+  let sql = null;
+  // 编辑
+  if (req.body.id) {
+    sql = `update exams set title = ${db.mysql.escape(req.body.title)},
+            exam_describe = ${db.mysql.escape(req.body.exam_describe)},
+            exam_type = ${db.mysql.escape(examType)},
+            enterprise_name = ${db.mysql.escape(enterpriseName)} 
+            where id = '${req.body.id}'`;
+  } else { // 新增
+    sql = `INSERT INTO exams 
+    VALUES ('${uid}', ${db.mysql.escape(req.body.title)},
+      ${db.mysql.escape(req.body.exam_describe)},
+      '${dayjs().format("YYYY-MM-DD HH:mm:ss")}',
+      '', 0, 0, 1, '${examType}', '${enterpriseName}')`;
+  }
+  db.query(sql, [], function (result, fields, err) {
+    if (err) {
       res.status(200).json({
         code: 500,
-        msg: '创建失败'
+        msg: '操作失败'
       })
-    }else {
+    } else {
       res.status(200).send({
         code: 0,
         data: {
           uid
         },
-        msg: '创建成功'
+        msg: '操作成功'
       })
     }
   });
@@ -35,13 +51,13 @@ app.post("/createExams", (req, res) => {
 // 根据id获取面试题信息
 app.get("/getExamsDetail", (req, res) => {
   let sql = 'select * from exams where id=?'
-  db.query(sql, [req.query.id], function(result, fields, err) {
-    if(err){
+  db.query(sql, [req.query.id], function (result, fields, err) {
+    if (err) {
       res.status(200).json({
         code: 500,
         msg: '查询失败'
       })
-    }else {
+    } else {
       res.status(200).json({
         code: 0,
         data: result[0],
@@ -55,16 +71,17 @@ app.get("/getExamsDetail", (req, res) => {
 app.get("/getExamsList", (req, res) => {
   let index = req.query.pageIndex;
   let size = req.query.pageSize;
+  let examType = req.query.examType;
   let start = (index - 1) * size;
-  let sql = 'SELECT COUNT(*) FROM exams where status=1; SELECT * FROM exams where status=1 limit ' + start + ',' + size;
-  db.query(sql, [], function(result, fields, err) {
-    if(err){
+  let sql = 'SELECT COUNT(*) FROM exams where status=1 and exam_type = \'' + examType + '\'; SELECT * FROM exams where status=1 and exam_type = \'' + examType + '\' limit ' + start + ',' + size;
+  db.query(sql, [], function (result, fields, err) {
+    if (err) {
       console.log(err)
       res.status(200).json({
         code: 500,
         msg: '查询失败'
       })
-    }else {
+    } else {
       let total = result[0][0]['COUNT(*)'];
       let data = result[1];
       res.status(200).json({
@@ -80,14 +97,14 @@ app.get("/getExamsList", (req, res) => {
 // 获取面试题列表
 app.get("/getSubjectList", (req, res) => {
   let sql = `SELECT * FROM subject where exam_id='${req.query.examId}'`;
-  db.query(sql, [], function(result, fields, err) {
-    if(err){
+  db.query(sql, [], function (result, fields, err) {
+    if (err) {
       console.log(err)
       res.status(200).json({
         code: 500,
         msg: '查询失败'
       })
-    }else {
+    } else {
       let data = result;
       res.status(200).json({
         code: 0,
@@ -101,16 +118,16 @@ app.get("/getSubjectList", (req, res) => {
 // 单选题：single，多选题：multi，问答：qa，编程：program
 app.post("/addSubject", (req, res) => {
   let uid = uuid.v1();
-  let subject_options_key,subject_options_value ,reference_answer;
-  if(req.body.subject_type == 'single'){
+  let subject_options_key, subject_options_value, reference_answer;
+  if (req.body.subject_type == 'single') {
     subject_options_key = req.body.subject_options_key.join('-');
     subject_options_value = req.body.subject_options_value.join('////');
     reference_answer = req.body.reference_answer;
-  }else if (req.body.subject_type == 'multi'){
+  } else if (req.body.subject_type == 'multi') {
     subject_options_key = req.body.subject_options_key.join('-');
     subject_options_value = req.body.subject_options_value.join('////');
     reference_answer = req.body.reference_answer.join(',');
-  }else {
+  } else {
     subject_options_key = '';
     subject_options_value = '';
     reference_answer = req.body.reference_answer;
@@ -141,13 +158,13 @@ app.post("/addSubject", (req, res) => {
     '${dayjs().format("YYYY-MM-DD HH:mm:ss")}',
     ${db.mysql.escape(req.body.reference_linking)}
     )`;
-  db.query(sql, [], function(result, fields, err) {
-    if(err){
+  db.query(sql, [], function (result, fields, err) {
+    if (err) {
       res.status(200).json({
         code: 500,
         msg: '创建失败'
       })
-    }else {
+    } else {
       updateExamCount(req.body.examId)
       res.status(200).send({
         code: 0,
@@ -161,16 +178,16 @@ app.post("/addSubject", (req, res) => {
 });
 
 app.post("/updateSubject", (req, res) => {
-  let subject_options_key,subject_options_value ,reference_answer;
-  if(req.body.subject_type == 'single'){
+  let subject_options_key, subject_options_value, reference_answer;
+  if (req.body.subject_type == 'single') {
     subject_options_key = req.body.subject_options_key.join('-');
     subject_options_value = req.body.subject_options_value.join('////');
     reference_answer = req.body.reference_answer;
-  }else if (req.body.subject_type == 'multi'){
+  } else if (req.body.subject_type == 'multi') {
     subject_options_key = req.body.subject_options_key.join('-');
     subject_options_value = req.body.subject_options_value.join('////');
     reference_answer = req.body.reference_answer.join(',');
-  }else {
+  } else {
     subject_options_key = '';
     subject_options_value = '';
     reference_answer = req.body.reference_answer;
@@ -185,13 +202,13 @@ app.post("/updateSubject", (req, res) => {
             exam_id='${req.body.examId}',
             answer_detail=${db.mysql.escape(req.body.answer_detail)},
             reference_linking=${db.mysql.escape(req.body.reference_linking)} WHERE id = '${req.body.id}' `;
-  db.query(sql, [], function(result, fields, err) {
-    if(err){
+  db.query(sql, [], function (result, fields, err) {
+    if (err) {
       res.status(200).json({
         code: 500,
         msg: '修改失败'
       })
-    }else {
+    } else {
       res.status(200).send({
         code: 0,
         msg: '修改成功'
@@ -202,13 +219,13 @@ app.post("/updateSubject", (req, res) => {
 
 app.post("/delSubject", (req, res) => {
   let sql = `DELETE FROM subject WHERE id = '${req.body.id}'`;
-  db.query(sql, [], function(result, fields, err) {
-    if(err){
+  db.query(sql, [], function (result, fields, err) {
+    if (err) {
       res.status(200).json({
         code: 500,
         msg: '删除失败'
       })
-    }else {
+    } else {
       updateExamCount(req.body.examId)
       res.status(200).send({
         code: 0,
@@ -220,13 +237,13 @@ app.post("/delSubject", (req, res) => {
 
 app.post("/delExam", (req, res) => {
   let sql = `UPDATE exams SET status=0 WHERE id = '${req.body.id}'`;
-  db.query(sql, [], function(result, fields, err) {
-    if(err){
+  db.query(sql, [], function (result, fields, err) {
+    if (err) {
       res.status(200).json({
         code: 500,
         msg: '删除失败'
       })
-    }else {
+    } else {
       res.status(200).send({
         code: 0,
         msg: '删除成功'
@@ -237,8 +254,8 @@ app.post("/delExam", (req, res) => {
 
 function updateExamCount(id) {
   let sql = `UPDATE exams SET count = (SELECT COUNT(*) FROM subject where exam_id='${id}') WHERE id = '${id}' `;
-  db.query(sql, [], function(result, fields, err) {
-    if(err) {
+  db.query(sql, [], function (result, fields, err) {
+    if (err) {
       console.log(err);
     }
   });

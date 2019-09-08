@@ -1,27 +1,22 @@
 <template>
   <div>
-    <el-button type="primary" size="medium " class="addBtn" @click="addIQ"
-      >新增</el-button
-    >
+    <el-button type="primary" size="medium " class="addBtn" @click="addIQ">新增</el-button>
     <el-table :data="tableData" style="width: 100%" border :height="600">
-      <el-table-column
-        prop="create_date"
-        label="创建时间"
-      >
-      </el-table-column>
-      <el-table-column prop="title" label="标题"> </el-table-column>
-      <el-table-column prop="describe" label="描述"> </el-table-column>
-      <el-table-column prop="author" label="作者"> </el-table-column>
-      <el-table-column prop="count" label="题目总数"> </el-table-column>
-      <el-table-column prop="study_times" label="学习次数"> </el-table-column>
+      <el-table-column prop="title" label="标题"></el-table-column>
+      <el-table-column prop="show_type" label="类型"></el-table-column>
+      <el-table-column prop="exam_describe" label="描述"></el-table-column>
+      <el-table-column prop="count" label="题目总数"></el-table-column>
+      <el-table-column prop="study_times" label="学习次数"></el-table-column>
+      <el-table-column prop="create_date" label="创建时间"></el-table-column>
       <el-table-column fixed="right" label="操作">
         <template slot-scope="scope">
-          <el-button type="text" @click="editExam(scope.row.id)">
-            编辑
-          </el-button>
-          <el-button type="text" @click="delExam(scope.row.id)">
-            删除
-          </el-button>
+          <div>
+            <el-button type="text" @click="editExamType(scope.row)">编辑试题类型</el-button>
+          </div>
+          <div>
+            <el-button type="text" @click="editExam(scope.row.id)">编辑试题</el-button>
+            <el-button type="text" @click="delExam(scope.row.id)">删除</el-button>
+          </div>
         </template>
       </el-table-column>
     </el-table>
@@ -35,45 +30,56 @@
       :page-size="pageInfo.pageSize"
       layout="total, sizes, prev, pager, next, jumper"
       :total="total"
-    >
-    </el-pagination>
-    <el-dialog
-      title="请先创建面试题种类"
-      :visible.sync="createExams"
-      width="30%"
-    >
+    ></el-pagination>
+    <el-dialog title="请先创建面试题种类" :visible.sync="createExams" width="30%">
       <span>
         <el-form ref="form" label-width="100px">
           <el-form-item label="标题：">
             <el-input v-model="newExamsInfo.title"></el-input>
           </el-form-item>
           <el-form-item label="简介：">
-            <el-input v-model="newExamsInfo.describe"></el-input>
+            <el-input v-model="newExamsInfo.exam_describe"></el-input>
+          </el-form-item>
+          <el-form-item label="类型：">
+            <el-select v-model="newExamsInfo.exam_type">
+              <el-option
+                v-for="(item, index) in examType"
+                :key="index"
+                :label="item.value"
+                :value="item.key"
+              ></el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label="公司：" v-if="newExamsInfo.exam_type === 'enterprise_paper'">
+            <el-input v-model="newExamsInfo.enterprise_name"></el-input>
           </el-form-item>
         </el-form>
       </span>
       <span slot="footer" class="dialog-footer">
         <el-button @click="createExams = false">取 消</el-button>
-        <el-button type="primary" @click="creatExams">确 定</el-button>
+        <el-button type="primary" @click="createOrUpdateExams">确 定</el-button>
       </span>
     </el-dialog>
   </div>
 </template>
 <script>
+import { examType, examTypeMap } from "../../components/enum";
 export default {
   data() {
     return {
       createExams: false,
       newExamsInfo: {
         title: "",
-        describe: ""
+        exam_describe: ""
       },
       total: 0,
       pageInfo: {
         pageIndex: 1,
         pageSize: 10
       },
-      tableData: []
+      tableData: [],
+      examType,
+      examTypeMap
     };
   },
   mounted() {
@@ -84,18 +90,26 @@ export default {
       this.createExams = true;
       // this.$router.push({ path: "/interQuestion" });
     },
-    creatExams() {
+    createOrUpdateExams() {
       if (
         this.newExamsInfo.title.length > 0 &&
-        this.newExamsInfo.describe.length > 0
+        this.newExamsInfo.exam_describe.length > 0
       ) {
         this.$api
           .createExams(this.newExamsInfo)
           .then(res => {
             this.createExams = false;
-            this.$router.push({
-              path: "/interQuestion/" + res.data.uid
-            });
+            if (this.newExamsInfo.id) {
+              this.newExamsInfo = {
+                title: "",
+                exam_describe: ""
+              };
+              this.getExamsList();
+            } else {
+              this.$router.push({
+                path: "/interQuestion/" + res.data.uid
+              });
+            }
           })
           .catch(err => {
             console.log(err);
@@ -103,11 +117,18 @@ export default {
       }
     },
     getExamsList() {
+      let params = {
+        ...this.pageInfo,
+        examType: 'special_practice'
+      };
       this.$api
-        .getExamsList(this.pageInfo)
+        .getExamsList(params)
         .then(res => {
           this.total = res.total;
           this.tableData = res.data;
+          this.tableData.forEach(
+            item => item.show_type = this.examTypeMap[item.exam_type]
+          );
         })
         .catch(err => {
           console.log(err);
@@ -135,6 +156,10 @@ export default {
         });
         this.getExamsList();
       });
+    },
+    editExamType(exam) {
+      this.newExamsInfo = exam;
+      this.createExams = true;
     }
   }
 };

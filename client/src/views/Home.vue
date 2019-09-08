@@ -5,7 +5,7 @@
         <Header />
       </el-header>
       <el-container>
-        <el-aside width="300px">
+        <el-aside width="230px">
           <div class="aside">
             <el-menu
               default-active="interviewQuestions"
@@ -18,7 +18,10 @@
                   <span class="IQ">面试题</span>
                 </template>
                 <el-menu-item index="/interviewQuestionManagement" class="IQM"
-                  >面试题管理</el-menu-item
+                  >专项练习</el-menu-item
+                >
+                <el-menu-item index="/enterprisePaperManage" class="IQM"
+                  >公司真题</el-menu-item
                 >
               </el-submenu>
             </el-menu>

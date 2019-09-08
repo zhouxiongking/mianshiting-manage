@@ -5,7 +5,7 @@
         <el-input v-model="examsInfo.title"></el-input>
       </el-form-item>
       <el-form-item label="试题简介：">
-        <el-input v-model="examsInfo.describe"></el-input>
+        <el-input v-model="examsInfo.exam_describe"></el-input>
       </el-form-item>
       <el-form-item label="试题内容：">
         <ol>

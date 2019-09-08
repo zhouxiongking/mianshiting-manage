@@ -7,7 +7,7 @@
       :rules="rules"
     >
       <br />
-      <el-form-item label="试题类题：" prop="type">
+      <el-form-item label="试题类型：" prop="type">
         <el-select v-model="question.type">
           <el-option v-for="(item, index) in subjecttype" :key="index" :label="item.value" :value="item.key"></el-option>
         </el-select>
