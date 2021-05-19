@@ -76,3 +76,4 @@ typings/
 # webOutput
 client/dist/
 
+.DS_Store

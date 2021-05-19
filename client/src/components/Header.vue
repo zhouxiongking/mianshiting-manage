@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="herder">欢迎进入面试题后台管理系统</div>
+    <div class="herder">欢迎进入面试厅后台管理系统</div>
   </div>
 </template>
 <script>

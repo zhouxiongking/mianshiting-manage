@@ -192,16 +192,17 @@ app.post("/updateSubject", (req, res) => {
     subject_options_value = '';
     reference_answer = req.body.reference_answer;
   }
-  let sql = `UPDATE subject SET 
+  let sql = `UPDATE subject SET
             type=${db.mysql.escape(req.body.type)},
             subject_describe=${db.mysql.escape(req.body.subject_describe)},
             subject_title=${db.mysql.escape(req.body.subject_title)},
             subject_options_key='${subject_options_key}',
             subject_options_value='${subject_options_value}',
-            reference_answer=${db.mysql.escape(reference_answer)},
-            exam_id='${req.body.examId}',
+            reference_answer='${reference_answer}',
+            exam_id='${req.body.exam_id}',
             answer_detail=${db.mysql.escape(req.body.answer_detail)},
-            reference_linking=${db.mysql.escape(req.body.reference_linking)} WHERE id = '${req.body.id}' `;
+            reference_linking=${db.mysql.escape(req.body.reference_linking)} 
+            WHERE id = '${req.body.id}' `;
   db.query(sql, [], function (result, fields, err) {
     if (err) {
       res.status(200).json({
