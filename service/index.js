@@ -3,9 +3,11 @@ const bodyParser = require("body-parser");
 const uuid = require("node-uuid");
 const fs = require("fs-extra");
 const dayjs = require("dayjs");
+const subject = require('./util/subject');
 const app = express();
 const db = require("./model/mysql.js");
 app.use(express.static("wwwroot"));
+app.use(bodyParser({limit: '50mb'}));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.listen(3000, () => {
   console.log("start....");
@@ -73,7 +75,7 @@ app.get("/getExamsList", (req, res) => {
   let size = req.query.pageSize;
   let examType = req.query.examType;
   let start = (index - 1) * size;
-  let sql = 'SELECT COUNT(*) FROM exams where status=1 and exam_type = \'' + examType + '\'; SELECT * FROM exams where status=1 and exam_type = \'' + examType + '\' limit ' + start + ',' + size;
+  let sql = 'SELECT COUNT(*) FROM exams where status=1 and exam_type = \'' + examType + '\'; SELECT * FROM exams where status=1 and exam_type = \'' + examType + '\' order by create_date desc limit ' + start + ',' + size;
   db.query(sql, [], function (result, fields, err) {
     if (err) {
       console.log(err)
@@ -151,7 +153,7 @@ app.post("/addSubject", (req, res) => {
     '${req.body.subject_type}',
     ${db.mysql.escape(req.body.subject_title)},
     '${subject_options_key}',
-    '${subject_options_value}',
+    ${db.mysql.escape(subject_options_value)},
     ${db.mysql.escape(reference_answer)},
     ${db.mysql.escape(req.body.answer_detail)},
     '${req.body.examId}',
@@ -250,6 +252,23 @@ app.post("/delExam", (req, res) => {
         msg: '删除成功'
       })
     }
+  });
+});
+
+// 爬取题目
+app.get('/crawingSubject', (req, res) => {
+  const { tid, qid, subjectType, contentType } = req.query;
+  subject.crawSubject({tid, qid, subjectType, contentType}).then((response) => {
+    res.status(200).send({
+      code: 0,
+      msg: '操作成功',
+      data: response,
+    });
+  }).catch(error => {
+    res.status(200).json({
+      code: 500,
+      msg: error.message,
+    });
   });
 });
 

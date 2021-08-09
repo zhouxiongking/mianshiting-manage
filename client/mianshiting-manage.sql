@@ -8,7 +8,7 @@ create table subject
    subject_type            varchar(10)                    not null,
    subject_title           text                           not null,
    subject_options_key     varchar(10)                    null,
-   subject_options_value   varchar(500)                   null,
+   subject_options_value   text                           null,
    /* 参考答案 */
    reference_answer        varchar(10)                    null,
    /* 解答过程 */

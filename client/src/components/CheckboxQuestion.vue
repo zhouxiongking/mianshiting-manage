@@ -46,7 +46,7 @@
       <el-form-item>
         <div class="addBtn">
           <el-button type="primary" @click="save('checkboxQuestion')" v-if="!isEdit">保存</el-button>
-          <el-button type="primary" @click="edit('checkboxQuestion')" v-else>提交</el-button>
+          <el-button type="primary" @click="submit('checkboxQuestion')" v-else>提交</el-button>
           <el-button @click="close('checkboxQuestion')" v-if="!isEdit">取消</el-button>
           <el-button @click="del('checkboxQuestion')" v-else>删除</el-button>
         </div>
@@ -198,6 +198,13 @@ export default {
           return false;
         }
       });
+    },
+    submit(formName) {
+      if (this.checkboxQuestion.id) {
+        this.edit(formName);
+      } else {
+        this.save(formName);
+      }
     },
     close(formName) {
       this.$refs[formName].resetFields();

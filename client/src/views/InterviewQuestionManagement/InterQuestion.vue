@@ -44,6 +44,37 @@
       </el-form-item>
     </el-form>
     <h2>新增面试题</h2>
+    <el-row :gutter="20">
+      <el-col :span="3">
+        <el-input v-model="tid" placeholder="tid"></el-input>
+      </el-col>
+      <el-col :span="3">
+        <el-input v-model="qid" placeholder="qid"></el-input>
+      </el-col>
+      <el-col :span="3">
+        <el-select v-model="subjectType" placehoder="选择题目类型">
+          <el-option
+            v-for="type of subjectTypeList"
+            :key="type.value"
+            :label="type.label"
+            :value="type.value"
+          ></el-option>
+        </el-select>
+      </el-col>
+      <el-col :span="3">
+        <el-select v-model="contentType" placehoder="选择题目内容类型">
+          <el-option
+            v-for="type of contentTypeList"
+            :key="type.value"
+            :label="type.label"
+            :value="type.value"
+          ></el-option>
+        </el-select>
+      </el-col>
+       <el-col :span="3">
+         <el-button @click="getQuestionContent">获取内容</el-button>
+      </el-col>
+    </el-row>
     <el-radio-group v-model="questionType">
       <el-radio label="radio">单选题</el-radio>
       <el-radio label="checkbox">多选题</el-radio>
@@ -71,6 +102,7 @@
 import CheckboxQuestion from "@/components/CheckboxQuestion.vue";
 import QAandCodeQuestion from "@/components/QAandCodeQuestion.vue";
 import RadioQuestion from "@/components/RadioQuestion.vue";
+import { subjectTypeList, contentTypeList } from '@/config/config';
 export default {
   components: {
     QAandCodeQuestion,
@@ -92,7 +124,13 @@ export default {
         describe: ""
       },
       questionType: "",
-      subjectList: []
+      subjectList: [],
+      tid: '',
+      qid: '',
+      subjectTypeList,
+      subjectType: '',
+      contentTypeList,
+      contentType: '',
     };
   },
   methods: {
@@ -116,6 +154,21 @@ export default {
     getSubjectList() {
       this.$api.getSubjectList({ examId: this.$route.params.id }).then(res => {
         this.subjectList = res.data;
+      });
+    },
+    // 爬取题目的内容
+    getQuestionContent() {
+      console.log(this.tid, this.qid);
+      const params = {
+        tid: this.tid,
+        qid: this.qid,
+        subjectType: this.subjectType,
+        contentType: this.contentType,
+      };
+      this.$api.crawSubject(params).then((res) => {
+        if (res.code === 0) {
+          this.subjectList.push(res.data);
+        }
       });
     }
   }

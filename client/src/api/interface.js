@@ -63,6 +63,16 @@ const updateSubject = data => {
     data
   });
 };
+
+// 爬取题目内容
+const crawSubject = params => {
+  return axios({
+    url: "/crawingSubject",
+    method: "get",
+    params
+  });
+};
+
 export default {
   getExamsDetail,
   createExams,
@@ -71,5 +81,6 @@ export default {
   delSubject,
   delExam,
   updateSubject,
-  getSubjectList
+  getSubjectList,
+  crawSubject
 };

@@ -79,7 +79,7 @@
             v-if="!isEdit"
             >保存</el-button
           >
-          <el-button type="primary" @click="edit('radioQuestion')" v-else
+          <el-button type="primary" @click="submit('radioQuestion')" v-else
             >提交</el-button
           >
           <el-button @click="close('radioQuestion')" v-if="!isEdit"
@@ -207,7 +207,7 @@ export default {
     save(formName) {
       this.$refs[formName].validate(valid => {
         if (valid) {
-          this.$api.addSubject(this.radioQuestion).then(res => {
+          this.$api.addSubject(this.radioQuestion).then(() => {
             this.$refs[formName].resetFields();
             this.$emit("reset");
             this.$emit("updateList");
@@ -230,6 +230,13 @@ export default {
           return false;
         }
       });
+    },
+    submit(formName) {
+      if (this.radioQuestion.id) {
+        this.edit(formName);
+      } else {
+        this.save(formName);
+      }
     },
     close(formName) {
       this.$refs[formName].resetFields();

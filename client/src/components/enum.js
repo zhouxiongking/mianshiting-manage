@@ -1,11 +1,7 @@
 export const type = [
   {
-    key: "HTML5",
+    key: "HTML",
     value: "HTML"
-  },
-  {
-    key: "CSS3",
-    value: "CSS"
   },
   {
     key: "JavaScript",

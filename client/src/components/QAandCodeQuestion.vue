@@ -48,7 +48,7 @@
           <el-button type="primary" @click="save('question')" v-if="!isEdit"
             >保存</el-button
           >
-          <el-button type="primary" @click="edit('question')" v-else
+          <el-button type="primary" @click="submit('question')" v-else
             >提交</el-button
           >
           <el-button @click="close('question')" v-if="!isEdit">取消</el-button>
@@ -161,6 +161,13 @@ export default {
           return false;
         }
       });
+    },
+    submit(formName) {
+      if (this.question.id) {
+        this.edit(formName);
+      } else {
+        this.save(formName);
+      }
     },
     close(formName) {
       this.$refs[formName].resetFields();
